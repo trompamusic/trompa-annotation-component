@@ -1,0 +1,54 @@
+mutation {
+    one: CreateAudioObject(
+        identifier: "7c338222-6c68-45ce-a1aa-f2a41a261520"
+        name: "Liebestraum No. 3"
+        title: "Liebestraum No. 3"
+        creator: "https://github.com/trompamusic/audio-annotator"
+        contributor: "https://mtg.upf.edu/"
+        source: "https://trompa-mtg.upf.edu/data/anno-component-test/SMC_005.wav"
+        format: "audio/wav"
+        encodingFormat: "audio/wav"
+        contentUrl: "https://trompa-mtg.upf.edu/data/anno-component-test/SMC_005.wav"
+    ) {
+        identifier
+    }
+    two: CreateAudioObject(
+        identifier: "598c90a2-1f4e-41e0-a69c-22419abd465c"
+        name: "White noise"
+        title: "White noise"
+        creator: "https://github.com/trompamusic/audio-annotator"
+        contributor: "https://mtg.upf.edu/"
+        source: "https://trompa-mtg.upf.edu/data/anno-component-test/noise.wav"
+        format: "audio/wav"
+        encodingFormat: "audio/wav"
+        contentUrl: "https://trompa-mtg.upf.edu/data/anno-component-test/noise.wav"
+    ) {
+        identifier
+    }
+    three: CreateDigitalDocument(
+        identifier: "b56aaf10-197a-4db3-a3d5-fe1028cc2e1a"
+        name: "Pierri Etude no. 4"
+        title: "Pierri Etude no. 4"
+        creator: "https://github.com/trompamusic/audio-annotator"
+        contributor: "https://mtg.upf.edu/"
+        source: "https://trompa-mtg.upf.edu/data/anno-component-test/SMC_015.wav"
+        format: "audio/wav"
+        encodingFormat: "audio/wav"
+        url: "https://trompa-mtg.upf.edu/data/anno-component-test/SMC_015.wav"
+    ) {
+        identifier
+    }
+    four: CreateDigitalDocument(
+        identifier: "e3d92e96-c88c-4f30-b615-56576468ff67"
+        name: "Sine wave"
+        title: "Sine wave"
+        creator: "https://github.com/trompamusic/audio-annotator"
+        contributor: "https://mtg.upf.edu/"
+        source: "https://trompa-mtg.upf.edu/data/anno-component-test/sine.wav"
+        format: "audio/wav"
+        encodingFormat: "audio/wav"
+        url: "https://trompa-mtg.upf.edu/data/anno-component-test/sine.wav"
+    ) {
+        identifier
+    }
+}

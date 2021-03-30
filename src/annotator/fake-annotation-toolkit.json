@@ -1,0 +1,84 @@
+{
+  "type": "ItemList",
+  "identifier": "12d90c4e-1d2c-4624-a6a2-fc71ee4465f2",
+  "creator": "https://alastair.trompa-solid.upf.edu/profile/card#me",
+  "additionalType": "https://vocab.trompamusic.eu/vocab#AnnotationToolkit",
+  "name": "Music Performance Feedback",
+  "itemListOrder": "ItemListUnordered",
+  "description": "Used for annotating a musical score to tell musicians what to do",
+  "itemListElement": [{
+    "type": "ListItem",
+    "identifier": "d129493a-d4de-49f0-b88f-d64353e0761e",
+    "creator": "https://alastair.trompa-solid.upf.edu/profile/card#me",
+    "additionalType": "https://vocab.trompamusic.eu/vocab#AnnotationToolkitItem",
+    "item":{
+        "type": "DefinedTermSet",
+        "creator": "https://alastair.trompa-solid.upf.edu/profile/card#me",
+        "identifier": "3e654156-5d4e-48c4-8464-f934bd9de48e",
+        "additionalType": "https://trompamusic.eu/vocab#AnnotationMotivationCollection",
+		"motivation":"tagging",
+        "name": "Performance Instructions",
+        "image": "https://alastair.trompa-solid.upf.edu/annotation-images/conductor-baton.png",
+        "hasDefinedTerm": [{
+                "type": "DefinedTerm",
+                "creator": "https://alastair.trompa-solid.upf.edu/profile/card#me",
+                "identifier": "5bfa4acd-3ffe-4830-9a6e-23c035cc249a",
+                "additionalType": "https://trompamusic.eu/vocab#AnnotationMotivationCollectionElement",
+                "image": "https://alastair.trompa-solid.upf.edu/annotation-images/upbow.png",
+                "termcode": "Upbow",
+                "skos:broader": "http://www.w3.org/ns/oa#commenting"
+            },
+            {
+                "type": "DefinedTerm",
+                "creator": "https://alastair.trompa-solid.upf.edu/profile/card#me",
+                "identifier": "421deea9-6b65-4ade-868b-7d78ecb91edd",
+                "additionalType": "https://trompamusic.eu/vocab#AnnotationMotivationCollectionElement",
+                "image": "https://alastair.trompa-solid.upf.edu/annotation-images/downbow.png",
+                "termcode": "Downbow",
+                "skos:broader": "http://www.w3.org/ns/oa#commenting"
+            }
+        ]
+        }
+  },
+  {
+    "type": "ListItem",
+    "identifier": "d129493a-d4de-49f0-b88f-d64353e0761e",
+    "creator": "https://alastair.trompa-solid.upf.edu/profile/card#me",
+    "additionalType": "https://vocab.trompamusic.eu/vocab#AnnotationToolkitItem",
+    "item":{
+        "type": "DefinedTermSet",
+        "creator": "https://alastair.trompa-solid.upf.edu/profile/card#me",
+        "identifier": "3e654156-5d4e-48c4-8464-f934bd9de48e",
+        "additionalType": "https://trompamusic.eu/vocab#AnnotationMotivationCollection",
+		"motivation":"tagging",
+        "name": "Mood",
+        "image": "https://alastair.trompa-solid.upf.edu/annotation-images/conductor-baton.png",
+        "hasDefinedTerm": [{
+                "type": "DefinedTerm",
+                "creator": "https://alastair.trompa-solid.upf.edu/profile/card#me",
+                "identifier": "5bfa4acd-3ffe-4830-9a6e-23c035cc249a",
+                "additionalType": "https://trompamusic.eu/vocab#AnnotationMotivationCollectionElement",
+                "termcode": "Happy",
+                "skos:broader": "http://www.w3.org/ns/oa#commenting"
+            },
+            {
+                "type": "DefinedTerm",
+                "creator": "https://alastair.trompa-solid.upf.edu/profile/card#me",
+                "identifier": "421deea9-6b65-4ade-868b-7d78ecb91edd",
+                "additionalType": "https://trompamusic.eu/vocab#AnnotationMotivationCollectionElement",
+                "termcode": "Sad",
+                "skos:broader": "http://www.w3.org/ns/oa#commenting"
+            },
+            {
+                "type": "DefinedTerm",
+                "creator": "https://alastair.trompa-solid.upf.edu/profile/card#me",
+                "identifier": "421deea9-6b65-4ade-868b-7d78ecb91edd",
+                "additionalType": "https://trompamusic.eu/vocab#AnnotationMotivationCollectionElement",
+                "termcode": "Energetic",
+                "skos:broader": "http://www.w3.org/ns/oa#commenting"
+            }
+        ]
+        }
+  }
+]
+}
