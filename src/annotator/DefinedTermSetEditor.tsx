@@ -1,6 +1,5 @@
 import { Component, MouseEventHandler, ChangeEvent } from 'react';
 import {Row, Col, Button, ListGroup,InputGroup, FormControl} from 'react-bootstrap-v5';
-import type { DefinedTermSet, DefinedTerm } from '../types';
 
 type DefinedTermSetEditorProps = {
 	isAdmin?:boolean;
@@ -15,22 +14,25 @@ export default class DefinedTermSetEditor extends Component<DefinedTermSetEditor
 	state = {
 		label: "",
 		definedTermSet: {
+			type: "DefinedTermSet" as "DefinedTermSet",
 			creator: "https://alastair.trompa-solid.upf.edu/profile/card#me",
 			identifier: "bc36b80d-c694-40dc-a9ed-37c7ba101779",
 			additionalType: "https://vocab.trompamusic.eu/vocab#TagCollection",
 			name: "Mood",
 			hasDefinedTerm: [
 				{
+					type: "DefinedTerm" as "DefinedTerm",
 					creator: "https://alastair.trompa-solid.upf.edu/profile/card#me",
 					identifier: "d415d9f7-bb6f-4a4a-8e5e-80d97c1cb2de",
 					additionalType: "https://vocab.trompamusic.eu/vocab#TagCollectionElement",
-					termcode: "Happy"
+					termCode: "Happy"
 				},
 				{
+					type: "DefinedTerm" as "DefinedTerm",
 					creator: "https://alastair.trompa-solid.upf.edu/profile/card#me",
 					identifier: "ceb5b57f-17ed-467e-9cfd-ae955fe15cc7",
 					additionalType: "https://vocab.trompamusic.eu/vocab#TagCollectionElement",
-					termcode: "Sad"
+					termCode: "Sad"
 				}
 			]
 		},
@@ -73,7 +75,7 @@ export default class DefinedTermSetEditor extends Component<DefinedTermSetEditor
 								>
 									<Row>
 										<Col>
-											{definedTerm.termcode}
+											{definedTerm.termCode}
 										</Col>
 										<Col xs={3}>
 											{isAdmin && <Button variant="outline-danger" size="sm" onClick={this.deleteTerm.bind(this,definedTerm)}>Delete</Button>}

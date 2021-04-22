@@ -1,0 +1,39 @@
+{
+  "identifier": "667daffc-5c56-43c7-8f96-e5c552b658e3",
+  "creator": "https://testuser.trompa-solid.upf.edu/profile/card#me",
+  "created": {
+    "formatted": "2021-04-22T15:41:59.818Z"
+  },
+  "targetUrl": null,
+  "targetNode": [
+    {
+      "identifier": "8a0aed3e-f2ff-4563-9198-174ffec2c83c",
+      "target": {
+        "__typename": "AudioObject",
+        "identifier": "bbfc8297-32b1-41ff-9711-03650ab42827",
+        "url": null,
+        "source": "https://trompa-mtg.upf.edu/data/anno-component-test/SMC_005.wav",
+        "contentUrl": "https://trompa-mtg.upf.edu/data/anno-component-test/SMC_005.wav"
+      },
+      "field": "source",
+      "fragment": null
+    }
+  ],
+  "motivation": "commenting",
+  "motivationUrl": null,
+  "motivationNode": [],
+  "motivationDefinedTerm": {
+    "identifier": "69aa0934-6335-4b0b-a659-a26ed0058e28",
+    "creator": "https://testuser.trompa-solid.upf.edu/profile/card#me",
+    "broaderMotivation": "commenting",
+    "termCode": "Arco",
+    "broaderUrl": null,
+    "additionalType": [
+      "https://vocab.trompamusic.eu/vocab#AnnotationMotivationCollectionElement",
+      "http://www.w3.org/ns/oa#Motivation"
+    ]
+  },
+  "bodyUrl": null,
+  "bodyText": [],
+  "bodyNode": []
+}

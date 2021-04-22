@@ -11,11 +11,10 @@ import CursorPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.cursor';
 import {randomColor} from './utils';
 import _throttle from 'lodash.throttle';
 import './Waveform.css';
-import type { Region, RegionStub, Annotation } from '../types';
 
 type WaveformProps ={
   resourceURL: string;
-  initialRegions:RegionStub[];
+  initialRegions:RegionInterchangeFormat[];
   updateRegion: (region:Region)=>void;
   selectRegion: (region:Region)=>void;
   deleteRegion: (region:Region)=>void;
@@ -26,7 +25,6 @@ type WaveformState = {
   selectedRegionId?:string;
   start?:number;
   end?:number;
-  data:Record<string,any>;
 }
 
 class Waveform extends Component<WaveformProps, WaveformState> {
@@ -42,7 +40,6 @@ class Waveform extends Component<WaveformProps, WaveformState> {
     super(props);
     this.state = {
       playing: false,
-      data:{},
     };
     this.form = React.createRef();
     this.throttledUpdateRegion = _throttle(props.updateRegion,1000,{leading:false});
@@ -113,6 +110,13 @@ class Waveform extends Component<WaveformProps, WaveformState> {
         this.wavesurfer?.pause();
       });
     });
+    
+    this.wavesurfer.on('play', () => {
+      this.setState({playing:true});
+    });
+    this.wavesurfer.on('pause', () => {
+      this.setState({playing:false});
+    });
     this.wavesurfer.drawer.on('dblclick', this.doubleClick);
   };
 
@@ -123,29 +127,40 @@ class Waveform extends Component<WaveformProps, WaveformState> {
     const computedStartTimeFloat = Math.fround(computedStartTime);
     const region = {
       start:computedStartTimeFloat,
-      end:computedStartTimeFloat
+      end:computedStartTimeFloat,
+      resize:false,
     };
     this.wavesurfer?.addRegion(region);
   }
   
+  
   /** Load regions fetched from API */
-  loadRegions = (regions:Region[])=> {
+  loadRegions = (regions:RegionInterchangeFormat[])=> {
     regions.forEach((region) => {
       // region.color = randomColor(0.1);
       this.wavesurfer?.addRegion(region);
     });
   }
   
-  updateRegionInWaveSurfer = (region:Annotation) => {
-    const {id,start,end,body} = region
+  createNewRegion = ()=> {
+    this.wavesurfer?.addRegion({});
+  }
+  
+  updateRegionInWaveSurfer = (region:RegionInterchangeFormat) => {
+    const {id,start,end} = region
     if(this.wavesurfer){
       const selectedRegion = this.wavesurfer.regions.list[id];
-      selectedRegion.update({
-          start,
-          end,
-          body
-      });
-      console.log("Region saved in wavesurfer:", selectedRegion);
+      if(selectedRegion){
+        const isPunctual = start === end;
+        selectedRegion.update({
+            start,
+            end,
+            resize: isPunctual ? false: true
+        });
+        console.log("Region saved in wavesurfer:", selectedRegion);
+      } else {
+        console.error("No region with id", id);
+      }
     }
   }
 
@@ -162,27 +177,29 @@ class Waveform extends Component<WaveformProps, WaveformState> {
     if(!selectedRegion){
       return;
     }
-    this.wavesurfer?.fireEvent('region-click', selectedRegion);
+    if(!isNaN(selectedRegion.start)){
+      this.wavesurfer?.fireEvent('region-click', selectedRegion);
+    }
   }
 
   
   handlePlay = () => {
     const isPlaying = this.wavesurfer?.isPlaying();
-    this.setState({ playing: Boolean(isPlaying) });
     if(isPlaying){
       this.wavesurfer?.pause();
     }
     else {
       this.wavesurfer?.play();
     }
+    this.setState({ playing: !Boolean(isPlaying) });
   };
   
   render() {
     const {resourceURL} = this.props;
     return (
       <div id="waveformContainer">
-        <button className="playButton" onClick={this.handlePlay} >
-        {!this.state.playing ? 'Play' : 'Pause'}
+        <button className="playButton" onClick={this.handlePlay}>
+          <i className={this.state.playing ? 'pause-button' :'play-button'} title="Play/Pause"></i>
         </button>
         <div id="waveform-and-plugins">
           <div id="waveform" />

@@ -1,0 +1,28 @@
+{
+  "identifier": "b8932d65-cb97-409f-b0cd-fecb0643c599",
+  "creator": "https://testuser.trompa-solid.upf.edu/profile/card#me",
+  "created": {
+    "formatted": "2021-04-22T14:37:27.32Z"
+  },
+  "targetUrl": null,
+  "targetNode": [
+    {
+      "identifier": "4b83defa-2cfc-4fbc-801c-392c66ef5aec",
+      "target": {
+        "__typename": "AudioObject",
+        "identifier": "e05d3a8b-903b-47b5-abf0-405811b1e18f",
+        "url": null,
+        "source": "https://trompa-mtg.upf.edu/data/anno-component-test/SMC_015.wav",
+        "contentUrl": "https://trompa-mtg.upf.edu/data/anno-component-test/contenturl_SMC_015.wav"
+      },
+      "field": "contentUrl",
+      "fragment": "t=10,20"
+    }
+  ],
+  "motivation": "tagging",
+  "motivationNode": [],
+  "motivationDefinedTerm": null,
+  "bodyUrl": null,
+  "bodyText": [],
+  "bodyNode": []
+}

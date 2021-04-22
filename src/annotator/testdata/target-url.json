@@ -1,0 +1,17 @@
+{
+  "identifier": "721d3c46-75a9-482f-81e1-567719a89834",
+  "creator": "https://testuser.trompa-solid.upf.edu/profile/card#me",
+  "created": {
+    "formatted": "2021-04-22T14:16:43.694Z"
+  },
+  "targetUrl": [
+    "https://example.com/audio.mp3"
+  ],
+  "targetNode": [],
+  "motivation": "tagging",
+  "motivationNode": [],
+  "motivationDefinedTerm": null,
+  "bodyUrl": null,
+  "bodyText": [],
+  "bodyNode": []
+}

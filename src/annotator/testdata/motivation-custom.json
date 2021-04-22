@@ -1,0 +1,47 @@
+{
+  "identifier": "45d4beb5-8d74-492c-b680-189b14962c25",
+  "creator": "https://testuser.trompa-solid.upf.edu/profile/card#me",
+  "created": {
+    "formatted": "2021-04-22T15:34:23.473Z"
+  },
+  "targetUrl": null,
+  "targetNode": [
+    {
+      "identifier": "2eb2daaa-cfa9-43f2-a7dd-38b7296feaf4",
+      "target": {
+        "__typename": "AudioObject",
+        "identifier": "bbfc8297-32b1-41ff-9711-03650ab42827",
+        "url": null,
+        "source": "https://trompa-mtg.upf.edu/data/anno-component-test/SMC_005.wav",
+        "contentUrl": "https://trompa-mtg.upf.edu/data/anno-component-test/SMC_005.wav"
+      },
+      "field": "source",
+      "fragment": null
+    }
+  ],
+  "motivation": "linking",
+  "motivationUrl": null,
+  "motivationNode": [
+    {
+      "identifier": "b2eeec78-69dc-4aa9-aaeb-a74703cc081c",
+      "creator": "https://testuser.trompa-solid.upf.edu/profile/card#me",
+      "broaderMotivation": "linking",
+      "broaderUrl": null,
+      "title": "Music scholars feedback grouping",
+      "description": "This motivation groups together 4 different annotations into a single meta-annotationwhich represents the full description of a recording by a user"
+    }
+  ],
+  "motivationDefinedTerm": null,
+  "bodyUrl": null,
+  "bodyText": [],
+  "bodyNode": [
+    {
+      "__typename": "Annotation",
+      "identifier": "20e66708-efe4-4b37-a5a4-9022aada44ef"
+    },
+    {
+      "__typename": "Annotation",
+      "identifier": "72eab704-14f2-4b05-ba35-71c3613297bd"
+    }
+  ]
+}

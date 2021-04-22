@@ -14,6 +14,13 @@
   position:relative; /* For cursor plugin */
 }
 
+.wavesurfer-region {
+  border-left: 2px solid cadetblue;
+}
+
+.wavesurfer-region > .wavesurfer-handle-start {
+  left: -2px !important;
+}
 
 #waveformContainer .playButton {
   
@@ -22,14 +29,57 @@
   align-items: center;
   width: 60px;
   height: 60px;
-  background: #EFEFEF;
+  background: #FFF;
   border-radius: 50%;
   border: none;
   outline: none;
   cursor: pointer;
-  padding-bottom: 3px;
+  --ggs: 2; /* Scaling of the icons*/
 }
 
 #waveformContainer .playButton:hover {
-  background: #DDD;
+  background: #f7f7f7;
+}
+
+.play-button, .pause-button  {
+  box-sizing: border-box;
+  position: relative;
+  display: block;
+  transform: scale(var(--ggs,1));
+  width: 22px;
+  height: 22px;
+  border: 2px solid;
+}
+
+.play-button {
+  border-radius: 20px
+}
+.pause-button {
+  border-radius: 22px
+}
+ 
+.play-button::before, .pause-button::before {
+  content: "";
+  display: block;
+  box-sizing: border-box;
+  position: absolute;
+}
+ 
+.play-button::before {
+  width: 0;
+  height: 10px;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 6px solid;
+  top: 4px;
+  left: 7px
+}
+ 
+.pause-button::before {
+  width: 6px;
+  height: 6px;
+  left: 6px;
+  top: 6px;
+  border-left: 2px solid;
+  border-right: 2px solid
 }

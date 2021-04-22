@@ -1,0 +1,47 @@
+{
+  "identifier": "52d3e7fc-c041-4278-9ab4-ecae14ee1827",
+  "creator": "https://testuser.trompa-solid.upf.edu/profile/card#me",
+  "created": {
+    "formatted": "2021-04-22T16:31:11.637Z"
+  },
+  "targetUrl": null,
+  "targetNode": [
+    {
+      "identifier": "e45377ea-3889-4798-9a70-146fc9b11939",
+      "target": {
+        "__typename": "AudioObject",
+        "identifier": "bbfc8297-32b1-41ff-9711-03650ab42827",
+        "url": null,
+        "source": "https://trompa-mtg.upf.edu/data/anno-component-test/SMC_005.wav",
+        "contentUrl": "https://trompa-mtg.upf.edu/data/anno-component-test/SMC_005.wav"
+      },
+      "field": "source",
+      "fragment": null
+    }
+  ],
+  "motivation": "tagging",
+  "motivationUrl": null,
+  "motivationNode": [],
+  "motivationDefinedTerm": null,
+  "bodyUrl": null,
+  "bodyText": [],
+  "bodyNode": [
+    {
+      "__typename": "DefinedTerm",
+      "identifier": "7900bda7-2db9-4b0b-95ff-091fc345bf03",
+      "termCode": "Happy",
+      "additionalType": [
+        "https://vocab.trompamusic.eu/vocab#TagCollectionElement"
+      ],
+      "inDefinedTermSet": [
+        {
+          "identifier": "f4a5b891-d2fd-45c3-ae4c-3a210a814318",
+          "additionalType": [
+            "https://vocab.trompamusic.eu/vocab#TagCollection"
+          ],
+          "name": "Mood"
+        }
+      ]
+    }
+  ]
+}

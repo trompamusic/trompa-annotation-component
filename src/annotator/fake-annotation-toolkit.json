@@ -1,84 +1,121 @@
 {
-  "type": "ItemList",
-  "identifier": "12d90c4e-1d2c-4624-a6a2-fc71ee4465f2",
-  "creator": "https://alastair.trompa-solid.upf.edu/profile/card#me",
-  "additionalType": "https://vocab.trompamusic.eu/vocab#AnnotationToolkit",
-  "name": "Music Performance Feedback",
-  "itemListOrder": "ItemListUnordered",
-  "description": "Used for annotating a musical score to tell musicians what to do",
-  "itemListElement": [{
-    "type": "ListItem",
-    "identifier": "d129493a-d4de-49f0-b88f-d64353e0761e",
-    "creator": "https://alastair.trompa-solid.upf.edu/profile/card#me",
-    "additionalType": "https://vocab.trompamusic.eu/vocab#AnnotationToolkitItem",
-    "item":{
-        "type": "DefinedTermSet",
-        "creator": "https://alastair.trompa-solid.upf.edu/profile/card#me",
-        "identifier": "3e654156-5d4e-48c4-8464-f934bd9de48e",
-        "additionalType": "https://trompamusic.eu/vocab#AnnotationMotivationCollection",
-		"motivation":"tagging",
-        "name": "Performance Instructions",
-        "image": "https://alastair.trompa-solid.upf.edu/annotation-images/conductor-baton.png",
-        "hasDefinedTerm": [{
-                "type": "DefinedTerm",
-                "creator": "https://alastair.trompa-solid.upf.edu/profile/card#me",
-                "identifier": "5bfa4acd-3ffe-4830-9a6e-23c035cc249a",
-                "additionalType": "https://trompamusic.eu/vocab#AnnotationMotivationCollectionElement",
-                "image": "https://alastair.trompa-solid.upf.edu/annotation-images/upbow.png",
-                "termcode": "Upbow",
-                "skos:broader": "http://www.w3.org/ns/oa#commenting"
-            },
+"data": {
+    "ItemList": [
+    {
+        "additionalType": [
+        "https://vocab.trompamusic.eu/vocab#AnnotationToolkit"
+        ],
+        "identifier": "710c814d-fdfd-4dc8-a325-3a31e7fca714",
+        "name": "Creative feedback annotation",
+        "itemListElement": [
+        {
+            "identifier": "22414e20-a1c7-461f-91a7-a2d88e9921fa",
+            "name": "One word tag",
+            "itemUrl": [
+            "http://www.w3.org/ns/oa#tagging"
+            ],
+            "item": []
+        },
+        {
+            "identifier": "204a773a-8dc8-4132-be30-766e2330560f",
+            "name": "Tell us your thoughts",
+            "itemUrl": [
+            "http://www.w3.org/ns/oa#commenting"
+            ],
+            "item": []
+        },
+        {
+            "identifier": "ad55dca6-7dda-4a1e-ab86-2d8cd070d5c5",
+            "name": "Rate this item",
+            "itemUrl": null,
+            "item": [
             {
-                "type": "DefinedTerm",
-                "creator": "https://alastair.trompa-solid.upf.edu/profile/card#me",
-                "identifier": "421deea9-6b65-4ade-868b-7d78ecb91edd",
-                "additionalType": "https://trompamusic.eu/vocab#AnnotationMotivationCollectionElement",
-                "image": "https://alastair.trompa-solid.upf.edu/annotation-images/downbow.png",
-                "termcode": "Downbow",
-                "skos:broader": "http://www.w3.org/ns/oa#commenting"
+                "__typename": "Rating",
+                "identifier": "c2bc1923-bd47-4ca0-84a1-489f8ea9b326",
+                "name": null,
+                "worstRating": 0,
+                "bestRating": 10
             }
-        ]
-        }
-  },
-  {
-    "type": "ListItem",
-    "identifier": "d129493a-d4de-49f0-b88f-d64353e0761e",
-    "creator": "https://alastair.trompa-solid.upf.edu/profile/card#me",
-    "additionalType": "https://vocab.trompamusic.eu/vocab#AnnotationToolkitItem",
-    "item":{
-        "type": "DefinedTermSet",
-        "creator": "https://alastair.trompa-solid.upf.edu/profile/card#me",
-        "identifier": "3e654156-5d4e-48c4-8464-f934bd9de48e",
-        "additionalType": "https://trompamusic.eu/vocab#AnnotationMotivationCollection",
-		"motivation":"tagging",
-        "name": "Mood",
-        "image": "https://alastair.trompa-solid.upf.edu/annotation-images/conductor-baton.png",
-        "hasDefinedTerm": [{
-                "type": "DefinedTerm",
-                "creator": "https://alastair.trompa-solid.upf.edu/profile/card#me",
-                "identifier": "5bfa4acd-3ffe-4830-9a6e-23c035cc249a",
-                "additionalType": "https://trompamusic.eu/vocab#AnnotationMotivationCollectionElement",
-                "termcode": "Happy",
-                "skos:broader": "http://www.w3.org/ns/oa#commenting"
-            },
+            ]
+        },
+        {
+            "identifier": "d9fe7bac-4126-473d-a9c0-d777423ab450",
+            "name": "Bowing instructions",
+            "itemUrl": null,
+            "item": [
             {
-                "type": "DefinedTerm",
-                "creator": "https://alastair.trompa-solid.upf.edu/profile/card#me",
-                "identifier": "421deea9-6b65-4ade-868b-7d78ecb91edd",
-                "additionalType": "https://trompamusic.eu/vocab#AnnotationMotivationCollectionElement",
-                "termcode": "Sad",
-                "skos:broader": "http://www.w3.org/ns/oa#commenting"
-            },
-            {
-                "type": "DefinedTerm",
-                "creator": "https://alastair.trompa-solid.upf.edu/profile/card#me",
-                "identifier": "421deea9-6b65-4ade-868b-7d78ecb91edd",
-                "additionalType": "https://trompamusic.eu/vocab#AnnotationMotivationCollectionElement",
-                "termcode": "Energetic",
-                "skos:broader": "http://www.w3.org/ns/oa#commenting"
+                "__typename": "DefinedTermSet",
+                "identifier": "9a0bece3-6a0d-4ddb-8393-b282d9c66d8d",
+                "name": "Performance instructions",
+                "additionalType": [
+                "https://vocab.trompamusic.eu/vocab#AnnotationMotivationCollection"
+                ],
+                "hasDefinedTerm": [
+                {
+                    "identifier": "f9783fbe-d61b-4aea-bccf-e9888a84fbe2",
+                    "broaderUrl": null,
+                    "broaderMotivation": "commenting",
+                    "termCode": "Slur",
+                    "image": "https://alastair.trompa-solid.upf.edu/annotation-images/slur.png"
+                },
+                {
+                    "identifier": "ea38de9a-49b5-4576-a849-8b3d39b6aac5",
+                    "broaderUrl": null,
+                    "broaderMotivation": "commenting",
+                    "termCode": "Arco",
+                    "image": "https://alastair.trompa-solid.upf.edu/annotation-images/arco.png"
+                },
+                {
+                    "identifier": "0891e510-9845-4221-85ed-8a1d2966e091",
+                    "broaderUrl": null,
+                    "broaderMotivation": "commenting",
+                    "termCode": "Downbow",
+                    "image": "https://alastair.trompa-solid.upf.edu/annotation-images/downbow.png"
+                },
+                {
+                    "identifier": "20275146-c7f2-468d-9e51-1ede0ad4f30a",
+                    "broaderUrl": null,
+                    "broaderMotivation": "commenting",
+                    "termCode": "Upbow",
+                    "image": "https://alastair.trompa-solid.upf.edu/annotation-images/upbow.png"
+                }
+                ]
             }
-        ]
+            ]
+        },
+        {
+            "identifier": "f5def6c2-0476-4ffd-9dcb-0664f71ae3a9",
+            "name": "Choose a mood!",
+            "itemUrl": null,
+            "item": [
+            {
+                "__typename": "DefinedTermSet",
+                "identifier": "3080b428-5426-437b-a4d9-0ce41f1a4ebf",
+                "name": "Mood",
+                "additionalType": [
+                "https://vocab.trompamusic.eu/vocab#TagCollection"
+                ],
+                "hasDefinedTerm": [
+                {
+                    "identifier": "1610c971-6661-4360-93a6-221519ebb74e",
+                    "broaderUrl": null,
+                    "broaderMotivation": null,
+                    "termCode": "Sad",
+                    "image": null
+                },
+                {
+                    "identifier": "646d849a-4f8e-489d-bdd1-c5729c2afaea",
+                    "broaderUrl": null,
+                    "broaderMotivation": null,
+                    "termCode": "Happy",
+                    "image": null
+                }
+                ]
+            }
+            ]
         }
+        ]
+    }
+    ]
   }
-]
 }

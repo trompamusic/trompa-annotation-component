@@ -1,10 +1,8 @@
-import { AnnotationMotivation } from "./annotator/Annotator";
-import { Annotation } from "./types";
-
+import Annotation, {DefaultAnnotationMotivation} from "./annotator/Annotation";
 
 export function saveAnnotation(annotation:Annotation) {
-	const {id, start, end, body} = annotation;
-	if(!annotation.id){
+	const {identifier, start, end, body} = annotation;
+	if(!identifier){
 		// Create new annotation
 	} else{
 		// Update existing annotation
@@ -12,8 +10,8 @@ export function saveAnnotation(annotation:Annotation) {
 }
 
 export function deleteAnnotation(annotation:Annotation) {
-	const {id, start, end, body} = annotation;
-	if(!annotation.id){
+	const {identifier, start, end, body} = annotation;
+	if(!identifier){
 		// Throw error, can't delete an annotation without an ID
 	} else{
 		// Delete existing annotation
@@ -25,7 +23,7 @@ export function fetchAnnotations():Annotation[] {
 	return [];
 }
 
-export function fetchAnnotationTypes():AnnotationMotivation[] {
+export function fetchAnnotationTypes():DefaultAnnotationMotivation[] {
 	// Fetch annotation types
 	return [];
 }

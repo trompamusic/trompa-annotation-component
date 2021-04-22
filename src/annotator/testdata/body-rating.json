@@ -1,0 +1,39 @@
+{
+  "identifier": "7837ab7a-4005-4175-9bc6-8c891bdab637",
+  "creator": "https://testuser.trompa-solid.upf.edu/profile/card#me",
+  "created": {
+    "formatted": "2021-04-22T16:23:49.486Z"
+  },
+  "targetUrl": null,
+  "targetNode": [
+    {
+      "identifier": "e4543f0d-d844-4333-a25e-596459b82651",
+      "target": {
+        "__typename": "AudioObject",
+        "identifier": "bbfc8297-32b1-41ff-9711-03650ab42827",
+        "url": null,
+        "source": "https://trompa-mtg.upf.edu/data/anno-component-test/SMC_005.wav",
+        "contentUrl": "https://trompa-mtg.upf.edu/data/anno-component-test/SMC_005.wav"
+      },
+      "field": "source",
+      "fragment": null
+    }
+  ],
+  "motivation": "assessing",
+  "motivationUrl": null,
+  "motivationNode": [],
+  "motivationDefinedTerm": null,
+  "bodyUrl": null,
+  "bodyText": [],
+  "bodyNode": [
+    {
+      "__typename": "Rating",
+      "identifier": "4f18b566-631a-4d7b-98c1-efd37a0b60b7",
+      "creator": "https://testuser.trompa-solid.upf.edu/profile/card#me",
+      "ratingValue": 8,
+      "bestRating": 10,
+      "worstRating": 1,
+      "additionalType": null
+    }
+  ]
+}

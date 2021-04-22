@@ -1,0 +1,19 @@
+{
+  "identifier": "75efeb55-b256-4d91-8e42-78a6a142b7c5",
+  "creator": "https://testuser.trompa-solid.upf.edu/profile/card#me",
+  "created": {
+    "formatted": "2021-04-22T16:14:20.778Z"
+  },
+  "targetUrl": "https://api.trompamusic.eu/1234",
+  "targetNode": [],
+  "motivation": "describing",
+  "motivationUrl": null,
+  "motivationNode": [],
+  "motivationDefinedTerm": null,
+  "bodyUrl": [
+    "https://trompamusic.eu/something",
+    "http://example.com/somethingelse"
+  ],
+  "bodyText": [],
+  "bodyNode": []
+}

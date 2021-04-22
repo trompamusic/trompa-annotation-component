@@ -1,0 +1,27 @@
+{
+  "identifier": "75cfcf75-64d3-47e1-9d4b-6385f130a9f7",
+  "creator": "https://testuser.trompa-solid.upf.edu/profile/card#me",
+  "created": {
+    "formatted": "2021-04-22T14:37:27.624Z"
+  },
+  "targetUrl": null,
+  "targetNode": [
+    {
+      "identifier": "bc1e6b56-39e3-463e-ab92-a9f9d1551e89",
+      "target": {
+        "__typename": "Annotation",
+        "identifier": "b8932d65-cb97-409f-b0cd-fecb0643c599",
+        "url": null,
+        "source": null
+      },
+      "field": null,
+      "fragment": null
+    }
+  ],
+  "motivation": "tagging",
+  "motivationNode": [],
+  "motivationDefinedTerm": null,
+  "bodyUrl": null,
+  "bodyText": [],
+  "bodyNode": []
+}

@@ -1,5 +1,4 @@
 import {ListGroup} from 'react-bootstrap-v5';
-import type {DefinedTerm} from '../types';
 
 type TagsProps = {
 	selected?:string[];
@@ -15,17 +14,17 @@ export default function Tags(props:TagsProps){
 	function handleTagClick(definedTerm:DefinedTerm, isOptionSelected:boolean){
 		console.log("handleTagClick called with tag:",definedTerm);
 		let newSelection:string[];
-		const {termcode} = definedTerm;
+		const {termCode} = definedTerm;
 		if(multiple){
 			if(isOptionSelected){
 				// filter out select
-				newSelection = (selected ??[]).filter(existingTags => existingTags !== termcode);
+				newSelection = (selected ??[]).filter(existingTags => existingTags !== termCode);
 			} else {
 				//add to selected
-				newSelection = (selected ??[]).concat(termcode);
+				newSelection = (selected ??[]).concat(termCode);
 			}
 		} else if (!isOptionSelected){
-			newSelection = [termcode];
+			newSelection = [termCode];
 		}
 		else {
 			newSelection = [];
@@ -37,12 +36,12 @@ export default function Tags(props:TagsProps){
 		<label htmlFor={name}>{label}</label>
 		<ListGroup>
 			{options.map(option=>{
-				const {termcode, image}=option;
-				const isOptionSelected = Array.isArray(selected) && selected.includes(termcode);
+				const {termCode, image}=option;
+				const isOptionSelected = Array.isArray(selected) && selected.includes(termCode);
 				return <ListGroup.Item action active={isOptionSelected}
 				onClick={handleTagClick.bind(null,option, isOptionSelected)}>
-					{image && <img className="me-2" src={image} alt={termcode}></img>}
-					{termcode}
+					{image && <img className="me-2" src={image} alt={termCode}></img>}
+					{termCode}
 				</ListGroup.Item>
 			})}
 		</ListGroup>

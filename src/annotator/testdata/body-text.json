@@ -1,0 +1,23 @@
+{
+  "identifier": "51c879ff-44eb-4d47-ab66-53201ea40c39",
+  "creator": "https://testuser.trompa-solid.upf.edu/profile/card#me",
+  "created": {
+    "formatted": "2021-04-22T16:14:20.859Z"
+  },
+  "targetUrl": "https://api.trompamusic.eu/1234",
+  "targetNode": [],
+  "motivation": "commenting",
+  "motivationUrl": null,
+  "motivationNode": [],
+  "motivationDefinedTerm": null,
+  "bodyUrl": null,
+  "bodyText": [
+    {
+      "identifier": "fc7870e5-6ff4-4f22-8891-ecd7f822562e",
+      "value": "if the <i>format</i> field is set correctly, the value of the <b>textualbody</b> can even be html!",
+      "format": "text/html",
+      "language": "en"
+    }
+  ],
+  "bodyNode": []
+}
