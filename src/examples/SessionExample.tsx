@@ -1,15 +1,12 @@
-import React, {useState} from 'react';
-import MultiModalComponent, { SearchConfig, searchTypes } from 'trompa-multimodal-component'
-import './App.css';
-import Navigation from "./Navigation";
-import {Col, Container, Row} from "react-bootstrap-v5";
-import Annotator from './annotator/Annotator';
-import {ApolloClient, ApolloProvider, createHttpLink, InMemoryCache} from '@apollo/client';
-import {AudioSelector} from "./AudioSelector";
-import TrompaClient from "./CEAPI";
+import {useState} from 'react';
+import {Col, Row} from "react-bootstrap-v5";
+import {ApolloClient, createHttpLink, InMemoryCache} from '@apollo/client';
 import {setContext} from "@apollo/client/link/context";
 import {useLDflexValue} from "@solid/react";
-import AudioObject from "./Multimodal";
+import MultiModalComponent, { SearchConfig, searchTypes } from 'trompa-multimodal-component';
+
+import Annotator from './Annotator';
+import {AudioSelector, AudioObject, TrompaClient} from "../index";
 import {CE_URL, AUTH_PROXY_URL} from "./Config";
 
 const searchConfig = new SearchConfig({
@@ -40,17 +37,14 @@ const client = new ApolloClient({
 
 const trompaClient = new TrompaClient(AUTH_PROXY_URL, client);
 
-function App() {
+function SessionExample() {
     const userId = useLDflexValue("user");
-    const [resource, setResource] = useState<Resource>();
+    const [resource, setResource] = useState<TrompaAnnotationComponents.Resource>();
     const [showSearch, setShowSearch] = useState(true);
 
     return (
       <div>
-        <ApolloProvider client={client}>
-            <Navigation />
             { userId ?
-                <Container fluid="lg">
                     <div className="accordion" id="accordion">
                         <div className="accordion-item">
                             <h2 className="accordion-header" id="headingOne">
@@ -103,41 +97,10 @@ function App() {
                             </div>
                         </div>
                     </div>
-                    {/* Accordion module does not seem to be ready to be used yet in react-bootstrap v5 alpha version, using straight bootsrap instead */}
-                    {/* <Accordion defaultActiveKey="0" activeKey={showSearch ? "0" : "1"}>
-                        <Accordion.Item eventKey="0">
-                            <Accordion.Header>Search for a resource</Accordion.Header>
-                            <Accordion.Body>
-                                <Row>
-                                    <MultiModalComponent
-                                        config={searchConfig}
-                                        uri={MM_COMPONENT_CE_URL}
-                                        placeholderText="Search for an audio item..."
-                                        onResultClick={(node: any) => {console.log('User has clicked on:', node); setResource(node); setShowSearch(false);}}
-                                    />
-                                </Row>
-                            </Accordion.Body>
-                        </Accordion.Item>
-                        <Accordion.Item eventKey="1">
-                            <Accordion.Header>Annotate</Accordion.Header>
-                            <Accordion.Body>
-                                {resource ?
-                                    <Annotator
-                                    user={userId}
-                                    trompaClient={trompaClient}
-                                    resourceURL={resource?.source}/>
-                                    : "Please search for and select a resource to annotate"
-                                }
-                            </Accordion.Body>
-                        </Accordion.Item>
-                    </Accordion> */}
-                    
-                </Container>
-                : "You must be logged in to use the annotator"
+                : "You must be logged in to use the session annotator example"
             }
-        </ApolloProvider>
       </div>
     )
 }
 
-export default App;
+export default SessionExample;

@@ -1,19 +1,38 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import Annotation, {DefaultAnnotationMotivation, TimeFragmentType} from "./annotations/Annotation";
+import TextArea from './annotations/TextArea';
+import Rating from './annotations/Rating';
+import Tags from './annotations/Tags';
+import TimeSelection from "./annotations/TimeSelection";
 
+import Waveform from './audio-visualiser/WaveForm';
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+import SessionViewer from "./resources/SessionViewer";
+import AudioSelector from "./resources/AudioSelector";
+import DefinedTermSetEditor from "./resources/DefinedTermSetEditor";
+import AudioObject from "./resources/AudioObject";
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+import * as utilities from './utils';
+import TrompaClient from "./API/CEAPI";
+// import SolidClient from "./API/SolidAPI";
+
+// If you want to serve an example app, uncomment this line and run npm start
+// import "./examples/App";
+
+export {
+    Annotation,
+    DefaultAnnotationMotivation,
+    TimeFragmentType,
+    TextArea,
+    Rating,
+    Tags,
+    Waveform,
+    TimeSelection,
+
+    SessionViewer,
+    AudioSelector,
+    DefinedTermSetEditor,
+    AudioObject,
+
+    TrompaClient,
+    utilities
+}
