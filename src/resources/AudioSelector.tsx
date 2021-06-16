@@ -1,27 +1,12 @@
 import {ApolloClient, gql} from '@apollo/client';
 import {ChangeEvent, Component} from "react";
 import {Button, Col, Form, Row} from "react-bootstrap-v5";
+import TrompaClient from "../API/CEAPI";
 
-const GET_ITEM = gql`
-    query ThingInterface($id: ID!) {
-        ThingInterface(identifier: $id) {
-            __typename
-            identifier
-            source
-            name
-            title
-            ... on MediaObjectInterface {
-                contentUrl
-            }
-            ... on AudioObject {
-                contentUrl
-            }
-        }
-    }
-`;
+
 
 type Props = {
-    apolloClient: ApolloClient<any>;
+    trompaClient: TrompaClient;
     onSelect: (node: { source: string }) => void;
 };
 type State = {
@@ -42,10 +27,7 @@ export default class AudioSelector extends Component<Props, State> {
     searchNode = async (): Promise<void> => {
         console.debug(`Hello ${this.state.nodeid}`)
         try {
-            const response = await this.props.apolloClient.query({
-                query: GET_ITEM,
-                variables: {id: this.state.nodeid},
-            });
+            const response = await this.props.trompaClient.getThingById(this.state.nodeid);
             console.debug("Apollo response:", response);
             if (response?.data?.ThingInterface?.length) {
                 this.setState({result: `You selected ${response.data.ThingInterface[0].contentUrl}`});

@@ -84,8 +84,6 @@ declare namespace TrompaAnnotationComponents {
         additionalType: string;
         termCode: string;
         image?: string;
-        broaderUrl?: string;
-        broaderMotivation?: string;
     }
 
     export type DefinedTermSet = {
@@ -94,6 +92,8 @@ declare namespace TrompaAnnotationComponents {
         creator: string;
         additionalType: string;
         name: string;
+        broaderUrl?: string;
+        broaderMotivation?: string;
         hasDefinedTerm: DefinedTerm[];
     }
 

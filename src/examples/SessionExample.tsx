@@ -1,43 +1,19 @@
 import {useState} from 'react';
 import {Col, Row} from "react-bootstrap-v5";
-import {ApolloClient, createHttpLink, InMemoryCache} from '@apollo/client';
-import {setContext} from "@apollo/client/link/context";
 import {useLDflexValue} from "@solid/react";
 import MultiModalComponent, { SearchConfig, searchTypes } from 'trompa-multimodal-component';
 
 import Annotator from './Annotator';
-import {AudioSelector, AudioObject, TrompaClient} from "../index";
-import {CE_URL, AUTH_PROXY_URL} from "./Config";
+import {AudioSelector, AudioObject} from "../index";
+import {CE_URL} from "./Config";
+import TrompaClient from "../API/CEAPI";
 
 const searchConfig = new SearchConfig({
     searchTypes: [searchTypes.DigitalDocument, AudioObject],
 });
 
-const httpLink = createHttpLink({
-    uri: CE_URL,
-});
 
-const authLink = setContext((_, { headers }) => {
-    // get the authentication token from local storage if it exists
-    const token = localStorage.getItem('CEAuthToken');
-    // return the headers to the context so httpLink can read them
-    return {
-        headers: {
-            ...headers,
-            authorization: token ? `Bearer ${token}` : "",
-        }
-    }
-});
-
-const client = new ApolloClient({
-    uri: CE_URL,
-    link: authLink.concat(httpLink),
-    cache: new InMemoryCache()
-});
-
-const trompaClient = new TrompaClient(AUTH_PROXY_URL, client);
-
-function SessionExample() {
+function SessionExample(props: {trompaClient: TrompaClient}) {
     const userId = useLDflexValue("user");
     const [resource, setResource] = useState<TrompaAnnotationComponents.Resource>();
     const [showSearch, setShowSearch] = useState(true);
@@ -58,7 +34,7 @@ function SessionExample() {
                                     <Col>
                                     If you know the ID of the resource:
                                     <AudioSelector
-                                        apolloClient={client}
+                                        trompaClient={props.trompaClient}
                                         onSelect={(node: any) => {console.log('User loaded resource:', node); setResource(node); setShowSearch(false);}}
                                     />
                                     </Col>
@@ -89,7 +65,7 @@ function SessionExample() {
                                 {resource ?
                                     <Annotator
                                     user={userId}
-                                    trompaClient={trompaClient}
+                                    trompaClient={props.trompaClient}
                                     resource={resource}/>
                                     : "Please first search for and select a resource to annotate"
                                 }

@@ -7,15 +7,9 @@ export default function Navigation() {
         <Navbar bg="light" expand="lg">
             <Navbar.Brand href="#home">Annotation demo</Navbar.Brand>
             <Nav className="me-auto">
-                <Nav.Link>
-                    <Link to="/">Main app</Link>
-                </Nav.Link>
-                <Nav.Link>
-                    <Link to="/kitchensink">Kitchen Sink</Link>
-                </Nav.Link>
-                <Nav.Link>
-                    <Link to="/editors/vocabulary">Fixed Vocabulary editor</Link>
-                </Nav.Link>
+                <Nav.Link as={Link} to="/">Main app</Nav.Link>
+                <Nav.Link as={Link} to="/kitchensink">Kitchen Sink</Nav.Link >
+                <Nav.Link as={Link} to="/editors/vocabulary">Fixed Vocabulary editor</Nav.Link>
             </Nav>
             <Nav>
                 <LoggedIn>
@@ -25,7 +19,7 @@ export default function Navigation() {
                     </Navbar.Text>
                 </LoggedIn>
                 <LoggedOut>
-                    <LoginButton className="btn btn-success ml-auto mr-1" popup="auth-popup.html">Login</LoginButton>
+                    <LoginButton className="btn btn-success ml-auto mr-1" popup="/auth-popup.html">Login</LoginButton>
                 </LoggedOut>
             </Nav>
         </Navbar>

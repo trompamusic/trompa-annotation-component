@@ -230,11 +230,14 @@ export default class Annotation {
             customMotivation = ceannotation.motivationUrl[0];
         } else if (ceannotation.motivationDefinedTerm) {
             const definedTerm = ceannotation.motivationDefinedTerm;
+            /*
+            broaderUrl: definedTerm.broaderUrl,
+                broaderMotivation: definedTerm.broaderMotivation
+             */
             customMotivation = {
                 type: 'DefinedTerm', identifier: definedTerm.identifier,
                 creator: definedTerm.creator, additionalType: definedTerm.additionalType,
-                termCode: definedTerm.termCode, broaderUrl: definedTerm.broaderUrl,
-                broaderMotivation: definedTerm.broaderMotivation
+                termCode: definedTerm.termCode
             }
         } else if (ceannotation.motivationNode && ceannotation.motivationNode.length > 0) {
             const ceMotivation = ceannotation.motivationNode[0]
