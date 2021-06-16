@@ -152,3 +152,33 @@ describe("Annotation", () => {
         expect(ann.body).toEqual(expected)
     })
 })
+
+describe("Annotation jsonld", () => {
+    it("saves basic file", async () => {
+        const target_url = require('./testdata/target-url.json')
+
+        const testAnnotation = {
+            "@context": "http://www.w3.org/ns/anno.jsonld",
+            "id": "http://example.org/anno2",
+            "type": "Annotation",
+            "body": {
+                "id": "http://example.org/video1",
+                "type": "Video"
+            },
+            "target": {
+                "id": "http://example.gov/patent1.pdf",
+                "format": "application/pdf",
+                "language": ["en", "ar"],
+                "textDirection": "ltr",
+                "processingLanguage": "en"
+            }
+        }
+
+        let expanded = await Annotation.fromJsonLd(testAnnotation)
+        expect(expanded).toEqual({});
+
+        let ann = Annotation.fromCE(target_url, "http://localhost:4000/")
+        const jsAnn = ann.getJsonLd();
+    })
+})
+

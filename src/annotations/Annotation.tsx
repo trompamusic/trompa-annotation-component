@@ -1,3 +1,8 @@
+import jsonld, {JsonLdDocument} from "jsonld"
+
+const annotation_context = require('./anno.json');
+
+
 export enum DefaultAnnotationMotivation {
     COMMENTING = "commenting", // freeform long text
     DESCRIBING = "describing", // freeform long text
@@ -13,6 +18,44 @@ export enum TimeFragmentType {
     WHOLE = '3',
 }
 
+export class NotAnAnnotationError extends Error {
+
+}
+
+export class AnnotationExternalResource {
+    id: string;
+    format?: string;
+    language?: string;
+    processingLanguage?: string;
+    textDirection?: string;
+    ltr?: string;
+    rtl?: string;
+    auto?: string;
+
+    constructor(id: string) {
+        this.id = id;
+    }
+}
+
+export class AnnotationTextualBody extends AnnotationExternalResource {
+    // TODO: This could be an enumeration of types which are defined in the annotation model,
+    //  though it does need to support any possible type
+    type: string = "TextualBody";
+    value: string;
+
+    constructor(id: string, value: string) {
+        super(id);
+        this.value = value;
+    }
+}
+
+/**
+ * A helper class to construct ids
+ */
+export class AnnotationTarget extends AnnotationExternalResource {
+
+}
+
 export default class Annotation {
     identifier: string;
     motivation?: DefaultAnnotationMotivation;
@@ -20,14 +63,13 @@ export default class Annotation {
 
     creator?: string;
     created?: string;
-    // TODO: Could also be an array of any of these types, but for now we assume it's just one
-    body?: TrompaAnnotationComponents.AnnotationBody;
-    target: TrompaAnnotationComponents.AnnotationTarget;
+    body?: TrompaAnnotationComponents.AnnotationBody[];
+    target: TrompaAnnotationComponents.AnnotationTarget[];
     isNew: boolean = true;
 
-    constructor(identifier: string, target: TrompaAnnotationComponents.AnnotationTarget, creator?: string, created?: string,
+    constructor(identifier: string, target: TrompaAnnotationComponents.AnnotationTarget[], creator?: string, created?: string,
                 motivation?: DefaultAnnotationMotivation, customMotivation?: TrompaAnnotationComponents.AnnotationCustomMotivation,
-                body?: TrompaAnnotationComponents.AnnotationBody) {
+                body?: TrompaAnnotationComponents.AnnotationBody[]) {
         this.identifier = identifier;
         this.target = target;
         this.creator = creator;
@@ -116,6 +158,46 @@ export default class Annotation {
                 break;
         }
     }
+
+    getJsonLd(): object {
+        /*
+        {"@context":"http://www.w3.org/ns/anno.jsonld",
+         "target":[
+           {"id":"https://raw.githubusercontent.com/trompamusic-encodings/Mahler_Symphony_No4_Doblinger-4hands/master/Mahler_No4_1-Doblinger-4hands.mei#note-0000002140626411"},
+           {"id":"https://raw.githubusercontent.com/trompamusic-encodings/Mahler_Symphony_No4_Doblinger-4hands/master/Mahler_No4_1-Doblinger-4hands.mei#note-0000002090971729"},
+           {"id":"https://raw.githubusercontent.com/trompamusic-encodings/Mahler_Symphony_No4_Doblinger-4hands/master/Mahler_No4_1-Doblinger-4hands.mei#note-0000001069992646"},
+           {"id":"https://raw.githubusercontent.com/trompamusic-encodings/Mahler_Symphony_No4_Doblinger-4hands/master/Mahler_No4_1-Doblinger-4hands.mei#note-0000001739549034"},
+           {"id":"https://raw.githubusercontent.com/trompamusic-encodings/Mahler_Symphony_No4_Doblinger-4hands/master/Mahler_No4_1-Doblinger-4hands.mei#note-0000000322223092"},
+           {"id":"https://raw.githubusercontent.com/trompamusic-encodings/Mahler_Symphony_No4_Doblinger-4hands/master/Mahler_No4_1-Doblinger-4hands.mei#note-0000000175649989"},
+           {"id":"https://raw.githubusercontent.com/trompamusic-encodings/Mahler_Symphony_No4_Doblinger-4hands/master/Mahler_No4_1-Doblinger-4hands.mei#note-0000001258619567"},
+           {"id":"https://raw.githubusercontent.com/trompamusic-encodings/Mahler_Symphony_No4_Doblinger-4hands/master/Mahler_No4_1-Doblinger-4hands.mei#note-0000000367259778"},
+           {"id":"https://raw.githubusercontent.com/trompamusic-encodings/Mahler_Symphony_No4_Doblinger-4hands/master/Mahler_No4_1-Doblinger-4hands.mei#note-0000000647319924"},
+           {"id":"https://raw.githubusercontent.com/trompamusic-encodings/Mahler_Symphony_No4_Doblinger-4hands/master/Mahler_No4_1-Doblinger-4hands.mei#note-0000000545835975"},
+           {"id":"https://raw.githubusercontent.com/trompamusic-encodings/Mahler_Symphony_No4_Doblinger-4hands/master/Mahler_No4_1-Doblinger-4hands.mei#note-0000000641108215"},
+           {"id":"https://raw.githubusercontent.com/trompamusic-encodings/Mahler_Symphony_No4_Doblinger-4hands/master/Mahler_No4_1-Doblinger-4hands.mei#note-0000001468787207"}
+         ],
+         "type":"Annotation",
+         "body":[{"id":"2805e455-e30b-4995-8183-cc0a0adfc26a","type":"TextualBody","value":"foobar"}],
+         "motivation":"describing",
+         "created":"2021-06-14T22:09:52.409Z",
+         "creator":"https://alastair.trompa-solid.upf.edu/profile/card#me",
+         "@id":"https://alastair.trompa-solid.upf.edu/bar/9171da48-e7d9-411e-8b73-b4efc5ea92e4.jsonld"
+         }
+         */
+        // Body:
+        // DefinedTerm | TextualBody | NodeBody | RatingType | string
+
+
+        return {
+            "@context": "http://www.w3.org/ns/anno.jsonld",
+            "id": this.identifier,
+            "type": "Annotation",
+            "body": null,
+            "target": null,
+            "motivation": null
+        }
+    }
+
 
     static fragmentToStartAndEnd(fragment: string): [number?, number?] {
         const params = /t=(\d+(?:\.\d+)?)(?:,(\d+(?:\.\d+)?))?/.exec(fragment)
@@ -251,8 +333,28 @@ export default class Annotation {
         return newAnnotation;
     }
 
-    static fromSolid(): Annotation {
-        const newAnnotation = new Annotation('1', '2')
+    static async fromJsonLd(annotation: any): Promise<any> {
+
+        if (annotation["@context"].endsWith("://www.w3.org/ns/anno.jsonld")) {
+            annotation["@context"] = annotation_context;
+        } else {
+            throw new NotAnAnnotationError("Document isn't a valid annotation")
+        }
+    console.log(annotation);
+
+        return jsonld.expand(annotation as JsonLdDocument)
+
+
+        const identifier = annotation.identifier;
+        const target = annotation.target;
+        // Body is optional
+        const body = annotation.body;
+        // Equilvalent to a text/plain TextualBody
+        const bodyValue = annotation.bodyValue;
+        const motivation = annotation.motivation;
+        // TODO: An annotation could have multiple bodies or targets
+        const newAnnotation = new Annotation(identifier, '2')
+
         newAnnotation.isNew = false;
         return newAnnotation;
     }
