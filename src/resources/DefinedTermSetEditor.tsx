@@ -1,173 +1,223 @@
-import React, {FunctionComponent, useState} from 'react';
+import React, {ChangeEvent, Component, FunctionComponent} from 'react';
 import {Button, Col, FormControl, InputGroup, ListGroup, Row} from 'react-bootstrap-v5';
-import {useMutation, useQuery} from "@apollo/client";
-import {useLDflexValue} from "@solid/react";
+import {ApolloClient} from "@apollo/client";
+import {LDflexValue, useLDflexValue, useWebId} from "@solid/react";
 import {
-	ADDITIONAL_TYPE_TAG_COLLECTION, ADDITIONAL_TYPE_TAG_COLLECTION_ELEMENT,
-	CreateDefinedTerm,
-	CreateDefinedTermSet, DefinedTermFragment, DefinedTermSetFragment,
-	DeleteDefinedTerm,
-	DeleteDefinedTermSet, MergeDefinedTermSetHasDefinedTerm,
-	QueryDefinedTermSetForUser
+    ADDITIONAL_TYPE_TAG_COLLECTION,
+    CreateDefinedTermSet,
+    QueryDefinedTermSetForUser
 } from "../API/CEAPI";
 
-type DefinedTermSetEditorProps = {}
-
-const DefinedTermSetEditor: FunctionComponent<DefinedTermSetEditorProps> = () => {
-	const userId = useLDflexValue("user");
-	const {loading, error, data} = useQuery(QueryDefinedTermSetForUser, {
-		variables: {
-			creator: userId?.toString(),
-			additionalType: "https://vocab.trompamusic.eu/vocab#TagCollection"
-		},
-		skip: !userId
-	});
-	const [createDefinedTerm] = useMutation(CreateDefinedTerm);
-	const [deleteDefinedTerm] = useMutation(DeleteDefinedTerm, {
-		update(cache, {data: {DeleteDefinedTerm}}) {
-			cache.modify({
-				fields: {
-					DefinedTermSet(existingDt = []) {
-					}
-				}
-			});
-		}
-	});
-	const [createDefinedTermSet] = useMutation(CreateDefinedTermSet, {
-			update(cache, {data: {CreateDefinedTermSet: foo}}) {
-				cache.modify({
-					fields: {
-						DefinedTermSet(existingDts = []) {
-							const newTodoRef = cache.writeFragment({
-								data: foo,
-								fragment: DefinedTermSetFragment,
-								fragmentName: "DefinedTermSetFragment"
-							});
-							return [...existingDts, newTodoRef];
-						}
-					}
-				});
-			}
-		});
-	const [deleteDefinedTermSet] = useMutation(DeleteDefinedTermSet, {
-		update(cache, {data: {DeleteDefinedTermSet}}) {
-			cache.modify({
-				fields: {
-					DefinedTermSet(existingDts = []) {
-
-					}
-				}
-			});
-		}
-	});
-	const [addDefinedTermToDefinedTermSet] = useMutation(MergeDefinedTermSetHasDefinedTerm, );
-	const [selectedDts, setSelectedDts] = useState<number>();
-	const [newDts, setNewDts] = useState<string>('');
-	const [newDt, setNewDt] = useState<string>('');
-
-	if (loading) return <p>Loading...</p>;
-	if (error) return <p>Error :(</p>;
-	if (!data) return <p>no data</p>;
-	return <Row><Col lg={5}><ListGroup> {
-		data.DefinedTermSet.map((definedTermSet: TrompaAnnotationComponents.DefinedTermSet, index: number) => {
-			return <ListGroup.Item action
-								   active={selectedDts === index}
-								   onClick={() => setSelectedDts(index)}
-			>
-				<Row>
-					<Col>
-						{definedTermSet.name}
-					</Col>
-					<Col xs={3}>
-						<Button variant="outline-danger"
-								size="sm" onClick={(e) =>
-						{
-							deleteDefinedTermSet({variables: {identifier: definedTermSet.identifier}});
-							setSelectedDts(undefined)
-							e.stopPropagation();
-						}}>Delete</Button>
-					</Col>
-				</Row>
-			</ListGroup.Item>
-		})
-	}
-		<ListGroup.Item action>
-			<InputGroup>
-				<FormControl
-					placeholder="New Category"
-					aria-label="New Category"
-					type="text" value={newDts}
-					onChange={(e) => setNewDts(e.target.value)}
-				/>
-				<Button variant="outline-success"
-					onClick={()=> {
-						createDefinedTermSet({
-							variables: {
-								creator: userId?.toString(),
-								name: newDts,
-								additionalType: ADDITIONAL_TYPE_TAG_COLLECTION
-							}})
-						setNewDts('')
-					}}>
-					Create
-				</Button>
-			</InputGroup>
-		</ListGroup.Item>
-	</ListGroup>
-	</Col>
-		<Col>
-			{selectedDts !== undefined && data.DefinedTermSet[selectedDts] && <>
-				<h4>DefinedTerms</h4>
-				<ListGroup>
-					{data.DefinedTermSet[selectedDts].hasDefinedTerm?.map((definedTerm: TrompaAnnotationComponents.DefinedTerm) => {
-						return (
-							<ListGroup.Item action>
-								<Row>
-									<Col>
-										{definedTerm.termCode}
-									</Col>
-									<Col xs={3}>
-										<Button variant="outline-danger"
-												size="sm" onClick={() => deleteDefinedTerm({variables: {identifier: definedTerm.identifier}})}>Delete</Button>
-									</Col>
-								</Row>
-							</ListGroup.Item>
-						)
-					})}
-					<ListGroup.Item action>
-						<InputGroup>
-							<FormControl
-								placeholder="New Category"
-								aria-label="New Category"
-								type="text" value={newDt}
-                                onChange={(e)=>setNewDt(e.target.value)}
-							/>
-							<Button variant="outline-success"
-								onClick={
-									()=> {
-										createDefinedTerm({variables: {
-												creator: userId?.toString(),
-												termCode: newDt,
-												additionalType: ADDITIONAL_TYPE_TAG_COLLECTION_ELEMENT
-											}}).then((d) => {
-												addDefinedTermToDefinedTermSet({variables: {
-													fromId: data.DefinedTermSet[selectedDts].identifier,
-														toId: d.data.CreateDefinedTerm.identifier
-														}}
-												)
-											})
-									}
-								}>
-								Create
-							</Button>
-						</InputGroup>
-					</ListGroup.Item>
-				</ListGroup>
-			</>
-			}
-		</Col>
-	</Row>
+/**
+ * Editor for:
+ *   - Fixed Vocabulary Defined Term Sets
+ *       - terms are just a single word
+ *
+ *   - Fixed collection of Motivations
+ *       - terms have word, image, and broader motivation
+ */
 
 
+type DefinedTermSetEditorProps = {
+    apolloClient: ApolloClient<any>
+    webId: string
 }
-export default DefinedTermSetEditor;
+
+type DefinedTermSetEditorState = {
+    data: Array<TrompaAnnotationComponents.DefinedTermSet>
+    selectedDts?: number
+    newDtsName: string
+    newDtName: string
+}
+
+type DefinedTermSetEditorWithUserProps = {
+    apolloClient: ApolloClient<any>
+}
+
+/**
+ * A wrapper that ensures that we always give a logged in user to DefinedTermSetEditor
+ * @param apolloClient
+ * @constructor
+ */
+const DefinedTermSetEditorWithUser: FunctionComponent<DefinedTermSetEditorWithUserProps> = ({apolloClient}) => {
+    const userId = useLDflexValue("user");
+    const webId = useWebId();
+
+    return <div>
+        {webId && <DefinedTermSetEditor apolloClient={apolloClient} webId={webId}/>}
+        {!webId && <p>You need to log in to use the editor</p>}
+    </div>
+}
+
+export class DefinedTermSetEditor extends Component<DefinedTermSetEditorProps, DefinedTermSetEditorState> {
+
+    constructor(props: DefinedTermSetEditorProps) {
+        super(props);
+        this.state = {
+            data: [],
+            selectedDts: undefined,
+            newDtsName: '',
+            newDtName: ''
+        }
+    }
+
+    async componentDidMount() {
+        console.debug("user is", this.props.webId)
+        const response = await this.props.apolloClient.query({
+            query: QueryDefinedTermSetForUser,
+            variables: {
+                creator: this.props.webId,
+                additionalType: "https://vocab.trompamusic.eu/vocab#TagCollection"
+            }
+        });
+        if (response.errors) {
+        } else {
+            this.setState({data: response.data.DefinedTermSet})
+        }
+    }
+
+    createDefinedTermSet = () => {
+        // TODO: Should use the CEAPI method instead of apollo
+        console.debug("gonna mutate")
+        this.props.apolloClient.mutate({
+            mutation: CreateDefinedTermSet,
+            variables: {
+                creator: this.props.webId,
+                name: this.state.newDtsName,
+                additionalType: ADDITIONAL_TYPE_TAG_COLLECTION
+            }
+        }).then((data) => {
+            let existingData: TrompaAnnotationComponents.DefinedTermSet[] = [];
+            if (this.state.data !== undefined) {
+                existingData = this.state.data.slice();
+            }
+            const newData: TrompaAnnotationComponents.DefinedTermSet[] = [...existingData, data.data.CreateDefinedTermSet]
+            this.setState({data: newData, newDtsName: ''})
+        })
+    }
+
+    createDefinedTerm = () => {
+        /*
+        createDefinedTerm({variables: {
+                                            creator: this.props.webId,
+                                            termCode: newDt,
+                                            additionalType: ADDITIONAL_TYPE_TAG_COLLECTION_ELEMENT
+                                        }}).then((d) => {
+                                        addDefinedTermToDefinedTermSet({variables: {
+                                                fromId: data.DefinedTermSet[selectedDts].identifier,
+                                                toId: d.data.CreateDefinedTerm.identifier
+                                            }}
+                                        )
+                                    })
+                                }
+         */
+    }
+
+    deleteDefinedTermSet = (identifier: string, index: number) => {
+        //{variables: {identifier: definedTermSet.identifier}
+    }
+
+    deleteDefinedTerm = (dtsIdentifier: string, dtsIndex: number, dtIdentifier: string, dtIndex: number) => {
+
+    }
+
+    setSelectedDts = (selected?: number) => {
+        this.setState({selectedDts: selected})
+    }
+
+    updateNewDtsName = (event: ChangeEvent<HTMLInputElement>) => {
+        this.setState({newDtsName: event.target.value})
+    }
+
+    updateNewDtName = (event: ChangeEvent<HTMLInputElement>) => {
+        this.setState({newDtName: event.target.value})
+    }
+
+    render() {
+        return <Row><Col lg={6}><ListGroup> {this.state.data &&
+        this.state.data.map((definedTermSet, index: number) => {
+            return <ListGroup.Item action as={"a"} key={definedTermSet.identifier}
+                                   active={this.state.selectedDts === index}
+                                   onClick={() => this.setSelectedDts(index)}
+            >
+                <Row>
+                    <Col>
+                        {definedTermSet.name}
+                    </Col>
+                    <Col xs={3}>
+                        <Button variant="outline-danger"
+                                size="sm" onClick={(e) => {
+                            this.deleteDefinedTermSet(definedTermSet.identifier!, index);
+                            this.setSelectedDts(undefined)
+                            e.stopPropagation();
+                        }}>Delete</Button>
+                    </Col>
+                </Row>
+            </ListGroup.Item>
+        })
+        }
+            <ListGroup.Item action as={"a"}>
+                <InputGroup>
+                    <FormControl
+                        placeholder="New Category"
+                        aria-label="New Category"
+                        type="text" value={this.state.newDtsName}
+                        onChange={this.updateNewDtsName}
+                    />
+                    <Button variant="outline-success"
+                            onClick={this.createDefinedTermSet}>
+                        Create
+                    </Button>
+                </InputGroup>
+            </ListGroup.Item>
+        </ListGroup></Col>
+
+            <Col>
+                {this.state.selectedDts !== undefined && this.state.data && this.state.data[this.state.selectedDts] && <>
+                    <h4>DefinedTerms</h4>
+                    <ListGroup>
+                        {this.state.data[this.state.selectedDts].hasDefinedTerm?.map((definedTerm, dtIndex) => {
+                            return (
+                                <ListGroup.Item action>
+                                    <Row>
+                                        <Col>
+                                            {definedTerm.termCode}
+                                        </Col>
+                                        <Col xs={3}>
+                                            <Button variant="outline-danger"
+                                                    size="sm" onClick={() => {
+                                                this.deleteDefinedTerm(this.state.data![this.state.selectedDts!].identifier!,
+                                                    this.state.selectedDts!,
+                                                    definedTerm.identifier!,
+                                                    dtIndex)
+                                            }}
+                                            >Delete</Button>
+                                        </Col>
+                                    </Row>
+                                </ListGroup.Item>
+                            )
+                        })}
+                        <ListGroup.Item action>
+                            <InputGroup>
+                                <FormControl
+                                    placeholder="New Category"
+                                    aria-label="New Category"
+                                    type="text" value={this.state.newDtName}
+                                    onChange={this.updateNewDtName}
+                                />
+                                <Button variant="outline-success"
+                                        onClick={() => this.createDefinedTerm}>
+                                    Create
+                                </Button>
+                            </InputGroup>
+                        </ListGroup.Item>
+                    </ListGroup>
+                </>
+                }
+            </Col>
+        </Row>
+    }
+}
+
+
+export default DefinedTermSetEditorWithUser;

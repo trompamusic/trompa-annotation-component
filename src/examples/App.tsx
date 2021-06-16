@@ -19,6 +19,7 @@ import SessionExample from "./SessionExample";
 import KitchenSink from './KitchenSink';
 
 import {DefinedTermSetEditor} from "../index";
+import DefinedTermSetEditorWithUser from "../resources/DefinedTermSetEditor";
 
 
 const httpLink = createHttpLink({
@@ -63,7 +64,7 @@ function App() {
                             <KitchenSink/>
                         </Route>
                         <Route path="/editors/vocabulary">
-                            <DefinedTermSetEditor/>
+                            <DefinedTermSetEditorWithUser apolloClient={client}/>
                         </Route>
                     </Switch>
                 </Container>

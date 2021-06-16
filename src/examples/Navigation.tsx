@@ -25,7 +25,7 @@ export default function Navigation() {
                     </Navbar.Text>
                 </LoggedIn>
                 <LoggedOut>
-                    <LoginButton className="btn btn-success ml-auto mr-1" popup="auth-popup.html">Login</LoginButton>
+                    <LoginButton className="btn btn-success ml-auto mr-1" popup="/auth-popup.html">Login</LoginButton>
                 </LoggedOut>
             </Nav>
         </Navbar>
