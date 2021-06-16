@@ -4,7 +4,7 @@
   "created": {
     "formatted": "2021-04-22T16:14:20.778Z"
   },
-  "targetUrl": "https://api.trompamusic.eu/1234",
+  "targetUrl": ["https://api.trompamusic.eu/1234"],
   "targetNode": [],
   "motivation": "describing",
   "motivationUrl": null,

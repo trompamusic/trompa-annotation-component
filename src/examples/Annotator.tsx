@@ -5,11 +5,11 @@ import {LDflexValue} from "@solid/react";
 // Annotation content components
 import {
     TextArea, Rating, Waveform, Annotation,
-    DefaultAnnotationMotivation, TimeSelection, TimeFragmentType,
+    AnnotationMotivation, TimeSelection, TimeFragmentType,
     SessionViewer, TrompaClient, utilities
 } from '../index';
 
-import fakeAnnotationToolkit from '../annotations/testdata/fake-annotation-toolkit.json';
+import fakeAnnotationToolkit from '../API/testdata/fake-annotation-toolkit.json';
 import {CE_URL} from "./Config";
 
 const {timeToPrecision, annotationToWaveSurferRegion, extractNameFromCreatorURI, contentUrlOrSource} = utilities;
@@ -21,7 +21,7 @@ type AnnotatorProps = {
 }
 type AnnotatorState = {
     annotations: Annotation[];
-    motivation?: DefaultAnnotationMotivation;
+    motivation?: AnnotationMotivation;
     selectedAnnotationId?: string;
     selectedAnnotationType?: any;
     selectedCategoryId?: string;
@@ -35,8 +35,7 @@ class Annotator extends Component<AnnotatorProps, AnnotatorState> {
         super(props);
         this.state = {
             annotations: [],
-            // annotations: fakeAnnotations.map(fakeAnno => Annotation.fromCE(fakeAnno)),
-            motivation: DefaultAnnotationMotivation.TAGGING
+            motivation: AnnotationMotivation.TAGGING
         };
     }
 
@@ -48,7 +47,7 @@ class Annotator extends Component<AnnotatorProps, AnnotatorState> {
         const annotationsForUser = await trompaClient.getAnnotationsForUser(user.toString())
         console.debug(annotationsForUser.data.Annotation);
         const annotations = annotationsForUser.data.Annotation.map((ann: any) => {
-            return Annotation.fromCE(ann, CE_URL);
+            return TrompaClient.annotationFromCE(ann, CE_URL);
         })
         this.setState({annotations})
     };
@@ -249,7 +248,7 @@ class Annotator extends Component<AnnotatorProps, AnnotatorState> {
     }
 
     // TODO: proper typing for annotationType structure
-    private getAnnotationTypeFromToolkitItem = (annotationType: any): DefaultAnnotationMotivation | undefined => {
+    private getAnnotationTypeFromToolkitItem = (annotationType: any): AnnotationMotivation | undefined => {
         let motivation;
         if (Array.isArray(annotationType?.itemUrl) && annotationType?.itemUrl.length) {
             motivation = annotationType.itemUrl[0].split("www.w3.org/ns/oa#")[1];
@@ -266,30 +265,30 @@ class Annotator extends Component<AnnotatorProps, AnnotatorState> {
             return;
         }
         switch (motivation) {
-            case DefaultAnnotationMotivation.COMMENTING:
+            case AnnotationMotivation.COMMENTING:
                 return <TextArea content={(annotation.body as TrompaAnnotationComponents.TextualBody)?.value}
                                  handleTextChange={this.handleTextChange}
                                  name="comment" label={annotation.motivation || selectedAnnotationType?.name}
                                  type="textarea"/>
 
-            case DefaultAnnotationMotivation.DESCRIBING:
+            case AnnotationMotivation.DESCRIBING:
                 return <TextArea content={(annotation.body as TrompaAnnotationComponents.TextualBody)?.value}
                                  handleTextChange={this.handleTextChange}
                                  name="description" label={annotation.motivation || selectedAnnotationType?.name}
                                  type="textarea"/>
 
-            case DefaultAnnotationMotivation.TAGGING:
+            case AnnotationMotivation.TAGGING:
                 return <TextArea content={(annotation.body as TrompaAnnotationComponents.TextualBody)?.value}
                                  handleTextChange={this.handleTextChange}
                                  name="tag" label={annotation.motivation || selectedAnnotationType?.name} type="input"/>
 
             // const {name, hasDefinedTerm} = selectedAnnotationType;
-            // case DefaultAnnotationMotivation.DefinedTermSet:
+            // case AnnotationMotivation.DefinedTermSet:
             //   return <Tags handleSelectionChange={this.handleTagsChange}
             //     name="tag" label={name} options={hasDefinedTerm}
             //     selected={[]}/>
 
-            case DefaultAnnotationMotivation.ASSESSING:
+            case AnnotationMotivation.ASSESSING:
                 return <Rating
                     ratingValue={(annotation?.body as TrompaAnnotationComponents.RatingType)?.ratingValue}
                     bestRating={(annotation?.body as TrompaAnnotationComponents.RatingType)?.bestRating ?? selectedAnnotationType?.item?.[0]?.bestRating}
@@ -408,6 +407,6 @@ class Annotator extends Component<AnnotatorProps, AnnotatorState> {
     }
 
 
-};
+}
 
 export default Annotator;

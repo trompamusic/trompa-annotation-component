@@ -1,4 +1,4 @@
-import Annotation, {DefaultAnnotationMotivation} from "../annotations/Annotation";
+import Annotation, {AnnotationMotivation} from "../annotations/Annotation";
 
 export function saveAnnotation(annotation: Annotation) {
     const {identifier, start, end, body} = annotation;
@@ -23,7 +23,7 @@ export function fetchAnnotations(): Annotation[] {
     return [];
 }
 
-export function fetchAnnotationTypes(): DefaultAnnotationMotivation[] {
+export function fetchAnnotationTypes(): AnnotationMotivation[] {
     // Fetch annotation types
     return [];
 }

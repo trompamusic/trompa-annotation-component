@@ -1,4 +1,4 @@
-import Annotation, {DefaultAnnotationMotivation} from "./annotations/Annotation";
+import Annotation, {AnnotationMotivation} from "./annotations/Annotation";
 
 export function randomColor(alpha: number) {
     return (
@@ -38,7 +38,7 @@ export function nameOfContentUrlOrSource(resource: TrompaAnnotationComponents.Re
 }
 
 
-export function formatBodyForSolid(start: number, end: number, resource: TrompaAnnotationComponents.Resource, motivation: DefaultAnnotationMotivation, creator?: string, id?: string, body?: TrompaAnnotationComponents.TextualBody | TrompaAnnotationComponents.TextualBody[] | TrompaAnnotationComponents.RatingTemplate | string) {
+export function formatBodyForSolid(start: number, end: number, resource: TrompaAnnotationComponents.Resource, motivation: AnnotationMotivation, creator?: string, id?: string, body?: TrompaAnnotationComponents.TextualBody | TrompaAnnotationComponents.TextualBody[] | TrompaAnnotationComponents.RatingTemplate | string) {
 
     let fragment: string;
     if (start === end) {

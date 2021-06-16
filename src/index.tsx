@@ -1,4 +1,4 @@
-import Annotation, {DefaultAnnotationMotivation, TimeFragmentType} from "./annotations/Annotation";
+import Annotation, {AnnotationMotivation, TimeFragmentType} from "./annotations/Annotation";
 import TextArea from './annotations/TextArea';
 import Rating from './annotations/Rating';
 import Tags from './annotations/Tags';
@@ -20,7 +20,7 @@ import TrompaClient from "./API/CEAPI";
 
 export {
     Annotation,
-    DefaultAnnotationMotivation,
+    AnnotationMotivation,
     TimeFragmentType,
     TextArea,
     Rating,
