@@ -13,6 +13,7 @@ import {
     Route
 } from "react-router-dom";
 import {ApolloClient, ApolloProvider, createHttpLink, InMemoryCache} from '@apollo/client';
+import {SessionProvider} from "@inrupt/solid-ui-react";
 import {setContext} from "@apollo/client/link/context";
 
 import SessionExample from "./SessionExample";
@@ -53,20 +54,22 @@ function App() {
     return (
         <Router>
             <ApolloProvider client={client}>
-                <Navigation/>
-                <Container fluid="lg">
-                    <Switch>
-                        <Route exact path="/">
-                            <SessionExample/>
-                        </Route>
-                        <Route path="/kitchensink">
-                            <KitchenSink/>
-                        </Route>
-                        <Route path="/editors/vocabulary">
-                            <DefinedTermSetEditor/>
-                        </Route>
-                    </Switch>
-                </Container>
+                <SessionProvider sessionId="trompa-annotation-component-app">
+                    <Navigation/>
+                    <Container fluid="lg">
+                        <Switch>
+                            <Route exact path="/">
+                                <SessionExample/>
+                            </Route>
+                            <Route path="/kitchensink">
+                                <KitchenSink/>
+                            </Route>
+                            <Route path="/editors/vocabulary">
+                                <DefinedTermSetEditor/>
+                            </Route>
+                        </Switch>
+                    </Container>
+                </SessionProvider>
             </ApolloProvider>
         </Router>
     )
