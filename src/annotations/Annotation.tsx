@@ -4,7 +4,8 @@ export enum DefaultAnnotationMotivation {
     TAGGING = "tagging", // freeform short text
     CLASSIFYING = "classifying", // closed vocabulary
     ASSESSING = "assessing", // ratings
-    LINKING = "linking"
+    LINKING = "linking",
+    HIGHLIGHTING = "highlighting" // e.g., circling score items
 }
 
 export enum TimeFragmentType {

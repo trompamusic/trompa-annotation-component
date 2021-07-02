@@ -6,17 +6,20 @@ import {LDflexValue} from "@solid/react";
 import {
     TextArea, Rating, Waveform, Annotation,
     DefaultAnnotationMotivation, TimeSelection, TimeFragmentType,
-    SessionViewer, TrompaClient, utilities
+    SessionViewer, TrompaClient, SolidClient, utilities
 } from '../index';
 
 import fakeAnnotationToolkit from '../annotations/testdata/fake-annotation-toolkit.json';
 import {CE_URL} from "./Config";
+import {toSolid} from "../utils";
 
 const {timeToPrecision, annotationToWaveSurferRegion, extractNameFromCreatorURI, contentUrlOrSource} = utilities;
 
 type AnnotatorProps = {
     user: LDflexValue | undefined;
     trompaClient: TrompaClient;
+    solidClient: any;
+    solidSession: any; //FIXME replace with @inrupt session type
     resource: TrompaAnnotationComponents.Resource;
 }
 type AnnotatorState = {
@@ -151,7 +154,10 @@ class Annotator extends Component<AnnotatorProps, AnnotatorState> {
             return;
         }
 
-        this.props.trompaClient.saveAnnotation(annotation);
+        /*this.props.trompaClient.saveAnnotation(annotation);*/
+        const solidAnnotation = toSolid(annotation, this.props.resource);
+        console.debug("Solid Client: ", this.props.solidClient)
+        this.props.solidClient.saveAnnotation(solidAnnotation, this.props.solidSession);
     }
 
     deleteRegion = () => {

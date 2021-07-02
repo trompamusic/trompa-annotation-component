@@ -18,7 +18,7 @@ export default function Navigation() {
     const {session} = useSession();
     const [idp, setIdp] = useState("https://trompa-solid.upf.edu");
     const [currentUrl, setCurrentUrl] = useState("http://localhost:3000");
-    console.debug("session info: ", session.info);
+    console.debug("session: ", session);
     return (
         <Navbar bg="light" expand="lg">
             <Navbar.Brand href="#home">Annotation demo</Navbar.Brand>

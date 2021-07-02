@@ -2,11 +2,11 @@ import {useState} from 'react';
 import {Col, Row} from "react-bootstrap-v5";
 import {ApolloClient, createHttpLink, InMemoryCache} from '@apollo/client';
 import {setContext} from "@apollo/client/link/context";
-import {useLDflexValue} from "@solid/react";
+import {useSession} from "@inrupt/solid-ui-react";
 import MultiModalComponent, { SearchConfig, searchTypes } from 'trompa-multimodal-component';
 
 import Annotator from './Annotator';
-import {AudioSelector, AudioObject, TrompaClient} from "../index";
+import {AudioSelector, AudioObject, TrompaClient, SolidClient} from "../index";
 import {CE_URL, AUTH_PROXY_URL} from "./Config";
 
 const searchConfig = new SearchConfig({
@@ -36,9 +36,11 @@ const client = new ApolloClient({
 });
 
 const trompaClient = new TrompaClient(AUTH_PROXY_URL, client);
+const solidClient = new SolidClient();
 
 function SessionExample() {
-    const userId = useLDflexValue("user");
+    const {session} = useSession();
+    const userId = session.info.webId;
     const [resource, setResource] = useState<TrompaAnnotationComponents.Resource>();
     const [showSearch, setShowSearch] = useState(true);
 
@@ -90,6 +92,8 @@ function SessionExample() {
                                     <Annotator
                                     user={userId}
                                     trompaClient={trompaClient}
+                                    solidClient={solidClient}
+                                    solidSession={session}
                                     resource={resource}/>
                                     : "Please first search for and select a resource to annotate"
                                 }

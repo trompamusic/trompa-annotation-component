@@ -1,4 +1,5 @@
 import Annotation, {DefaultAnnotationMotivation} from "./annotations/Annotation";
+import {SolidAnnotation, SolidTextualBody} from "./API/SolidAPI";
 
 export function randomColor(alpha: number) {
     return (
@@ -38,6 +39,9 @@ export function nameOfContentUrlOrSource(resource: TrompaAnnotationComponents.Re
 }
 
 
+
+
+
 export function formatBodyForSolid(start: number, end: number, resource: TrompaAnnotationComponents.Resource, motivation: DefaultAnnotationMotivation, creator?: string, id?: string, body?: TrompaAnnotationComponents.TextualBody | TrompaAnnotationComponents.TextualBody[] | TrompaAnnotationComponents.RatingTemplate | string) {
 
     let fragment: string;
@@ -57,6 +61,52 @@ export function formatBodyForSolid(start: number, end: number, resource: TrompaA
             fragment: fragment
         }
     }
+}
+
+export function toSolid(annotation: Annotation, resource: TrompaAnnotationComponents.Resource):SolidAnnotation {
+    console.debug("Annotation: ", annotation)
+    console.debug("Resource: ", resource)
+    let targets: TrompaAnnotationComponents.AnnotationTarget|TrompaAnnotationComponents.AnnotationTarget[] = annotation.target;
+    if(!Array.isArray(targets)) { 
+      targets = [targets]
+    }
+    
+    let solidTarget:URL|URL[] = targets.map((t) => { 
+      let target:URL;
+      if(typeof t === "string") {
+        target = new URL(t);
+      } else {
+        // figure out the url: if fieldName is set, use the value of that field of the Resource
+        let url: string;
+        if("fieldName" in t) { 
+          url = resource[t.fieldName]
+        } else { 
+          // ... otherwise use the url field
+          url = t.url!
+        }
+        // figure out the fragment if one exists
+        if("fragment" in t) {
+          target = new URL(`${url}#${t.fragment}`);
+        } else if("start" in t && "end" in t) { 
+          target = new URL(`${url}?t=${t.start!},${t.end}`)
+        }
+        else { 
+          // no fragment
+          target = new URL(url)
+        }
+      }
+      return target
+    })
+    solidTarget = solidTarget.filter(t => t !== null);
+    if(solidTarget.length === 1) {
+      solidTarget = solidTarget[0];
+    }
+
+    const solidAnnotation = {
+      "@context": "https://www.w3.org/ns/anno.jsonld",
+      target: solidTarget
+    }
+    return solidAnnotation
 }
 
 export function annotationToWaveSurferRegion(annotation: Annotation): TrompaAnnotationComponents.RegionInterchangeFormat | undefined {

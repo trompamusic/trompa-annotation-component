@@ -13,10 +13,10 @@ import AudioObject from "./resources/AudioObject";
 
 import * as utilities from './utils';
 import TrompaClient from "./API/CEAPI";
-// import SolidClient from "./API/SolidAPI";
+import SolidClient from "./API/SolidAPI";
 
 // If you want to serve an example app, uncomment this line and run npm start
-// import "./examples/App";
+import "./examples/App";
 
 export {
     Annotation,
@@ -34,5 +34,6 @@ export {
     AudioObject,
 
     TrompaClient,
+    SolidClient,
     utilities
 }
