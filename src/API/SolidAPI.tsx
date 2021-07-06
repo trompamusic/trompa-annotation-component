@@ -1,7 +1,7 @@
 import Annotation, {AnnotationMotivation} from "../annotations/Annotation";
 
 export function saveAnnotation(annotation: Annotation) {
-    const {identifier, start, end, body} = annotation;
+    const {identifier} = annotation;
     if (!identifier) {
         // Create new annotation
     } else {
@@ -10,7 +10,7 @@ export function saveAnnotation(annotation: Annotation) {
 }
 
 export function deleteAnnotation(annotation: Annotation) {
-    const {identifier, start, end, body} = annotation;
+    const {identifier} = annotation;
     if (!identifier) {
         // Throw error, can't delete an annotation without an ID
     } else {

@@ -1,3 +1,4 @@
+import {startAndEndFromAnnotation} from "../utils";
 
 export enum AnnotationMotivation {
     COMMENTING = "commenting", // freeform long text
@@ -158,39 +159,12 @@ export class AnnotationTarget extends AnnotationExternalWebResource {
             return `t=${start}`;
         }
     }
-
-    /*
-    get timeFragmentType(): TimeFragmentType | string {
-        if (this.start !== undefined && !isNaN(this.start)) {
-            if (this.end !== undefined && !isNaN(this.end)) {
-                return TimeFragmentType.RANGE;
-            }
-            return TimeFragmentType.PUNCTUAL;
-        }
-        return TimeFragmentType.WHOLE;
-    }
-
-    set timeFragmentType(newTP: TimeFragmentType | string) {
-        switch (newTP) {
-            case TimeFragmentType.PUNCTUAL:
-                this.end = undefined;
-                break;
-            case TimeFragmentType.WHOLE:
-                this.start = undefined;
-                this.end = undefined;
-                break;
-            case TimeFragmentType.RANGE:
-                this.start = this.start ?? 0.5
-                this.end = this.end ?? 1
-                break;
-        }
-    }
-    */
 }
 
 export default class Annotation {
     identifier: string;
     motivation?: AnnotationMotivation;
+    // TODO: Trompa-specific, should be part of above motivation
     customMotivation?: TrompaAnnotationComponents.AnnotationCustomMotivation;
 
     creator?: string;
@@ -199,8 +173,10 @@ export default class Annotation {
     target: AnnotationTarget[] | TrompaAnnotationComponents.AnnotationCETarget[];
     canonical?: string;
     via?: string;
+    // TODO: Editor-specific, shouldn't be part of data model
     isNew: boolean = true;
 
+    // TODO: Formatting
     constructor(params: {
         identifier: string,
         target: AnnotationTarget[] | TrompaAnnotationComponents.AnnotationCETarget[],
@@ -221,5 +197,35 @@ export default class Annotation {
         this.canonical = params.canonical;
         this.via = params.via;
         // TODO: Requires at least 1 target
+    }
+
+    get timeFragmentType(): TimeFragmentType | string {
+        const [start, end] = startAndEndFromAnnotation(this);
+
+        if (start !== undefined && !isNaN(start)) {
+            if (end !== undefined && !isNaN(end)) {
+                return TimeFragmentType.RANGE;
+            }
+            return TimeFragmentType.PUNCTUAL;
+        }
+        return TimeFragmentType.WHOLE;
+    }
+
+    set timeFragmentType(newTP: TimeFragmentType | string) {
+        /*
+        switch (newTP) {
+            case TimeFragmentType.PUNCTUAL:
+                this.end = undefined;
+                break;
+            case TimeFragmentType.WHOLE:
+                this.start = undefined;
+                this.end = undefined;
+                break;
+            case TimeFragmentType.RANGE:
+                this.start = this.start ?? 0.5
+                this.end = this.end ?? 1
+                break;
+        }
+         */
     }
 }

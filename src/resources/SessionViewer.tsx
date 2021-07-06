@@ -1,7 +1,7 @@
 import {Row, Col, Card, ListGroup} from 'react-bootstrap-v5';
 import Annotation, {AnnotationTarget} from "../annotations/Annotation";
 import "./SessionViewer.css"
-import {extractNameFromCreatorURI} from '../utils';
+import {extractNameFromCreatorURI, startAndEndFromAnnotation} from '../utils';
 
 export type SessionViewerProps = {
     annotations: Annotation[];
@@ -33,6 +33,7 @@ function SessionViewer(props: SessionViewerProps) {
             <Card.Header>Annotations for this session</Card.Header>
             <ListGroup>
                 {annotations.map(annotation => {
+                    const [start, end] = startAndEndFromAnnotation(annotation);
                     return (
                         <ListGroup.Item action key={annotation.identifier}
                                         active={annotation.identifier === selectedAnnotationId}
@@ -44,10 +45,10 @@ function SessionViewer(props: SessionViewerProps) {
                                 <Col md="auto">
                                     url: {getURLFromTarget(annotation.target?.[0])}
                                 </Col>
-                                {!isNaN(Number(annotation.start)) &&
+                                {!isNaN(Number(start)) &&
                                 <Col md="auto">
                                     time:&nbsp;
-                                    {annotation.start} - {annotation.end}
+                                    {start} - {end}
                                 </Col>
                                 }
                             </Row>

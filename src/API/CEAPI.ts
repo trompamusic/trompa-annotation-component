@@ -56,60 +56,64 @@ export default class TrompaClient {
     saveAnnotation = async (annotation: Annotation) => {
         // TODO: Update if it already exists
         console.debug(annotation);
-        const {motivation, creator, identifier, body, target} = annotation;
+        const {motivation, creator, identifier} = annotation;
         await this.getApiToken();
 
         if (!motivation) {
             throw new TypeError("Annotation must have a motivation")
         }
-        if (!target) {
+        if (!annotation.target) {
             throw new TypeError("Annotation must have a target")
         }
 
         // Create body
         let bodyId: string | undefined;
-        for (const body of annotation.body) {
-            if (body instanceof AnnotationExternalWebResource) {
+        if (annotation.body) {
+            for (const body of annotation.body) {
+                if (body instanceof AnnotationExternalWebResource) {
 
-            } else if (body.type === "TextualBody") {
-                let response = await this.apolloClient.mutate({
-                    mutation: CreateAnnotationTextualBody,
-                    variables: {creator: creator, value: body.value, language: body.language, format: body.format}
-                })
-                if (response.errors) {
-                    console.error(response.errors)
-                } else {
-                    bodyId = response.data.CreateAnnotationTextualBody.identifier;
+                } else if (body.type === "TextualBody") {
+                    let response = await this.apolloClient.mutate({
+                        mutation: CreateAnnotationTextualBody,
+                        variables: {creator: creator, value: body.value, language: body.language, format: body.format}
+                    })
+                    if (response.errors) {
+                        console.error(response.errors)
+                    } else {
+                        bodyId = response.data.CreateAnnotationTextualBody.identifier;
+                    }
+                } else if (body.type === "DefinedTerm") {
+
+                } else if (body.type === "NodeBody") {
+
+                } else if (body.type === "Rating") {
+
                 }
-            } else if (body.type === "DefinedTerm") {
-
-            } else if (body.type === "NodeBody") {
-
-            } else if (body.type === "Rating") {
-
             }
         }
 
         // Create target
         let targetId: string | undefined;
-        if (target) {
-            if (typeof target === "string") {
+        if (annotation.target) {
+            for (const target of annotation.target) {
+                if (target instanceof AnnotationTarget) {
 
-            } else if (target.type === "AnnotationTarget") {
-                let response = await this.apolloClient.mutate({
-                    mutation: CreateAnnotationCETarget,
-                    variables: {creator: creator, field: target.fieldName, fragment: annotation.timeString}
-                })
-                if (response.errors) {
-                    console.error(response.errors)
-                } else {
-                    targetId = response.data.CreateAnnotationCETarget.identifier;
-                    response = await this.apolloClient.mutate({
-                        mutation: MergeAnnotationCETargetTarget,
-                        variables: {annotationCeTargetId: targetId, ceNodeId: target.nodeId}
+                } else if (target.type === 'AnnotationTarget') {
+                    let response = await this.apolloClient.mutate({
+                        mutation: CreateAnnotationCETarget,
+                        variables: {creator: creator, field: target.fieldName, fragment: target.fragment}
                     })
                     if (response.errors) {
                         console.error(response.errors)
+                    } else {
+                        targetId = response.data.CreateAnnotationCETarget.identifier;
+                        response = await this.apolloClient.mutate({
+                            mutation: MergeAnnotationCETargetTarget,
+                            variables: {annotationCeTargetId: targetId, ceNodeId: target.nodeId}
+                        })
+                        if (response.errors) {
+                            console.error(response.errors)
+                        }
                     }
                 }
             }

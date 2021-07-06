@@ -11,6 +11,8 @@ import {
 
 import fakeAnnotationToolkit from '../API/testdata/fake-annotation-toolkit.json';
 import {CE_URL} from "./Config";
+import {startAndEndFromAnnotation} from "../utils";
+import {AnnotationExternalWebResource, AnnotationTarget, AnnotationTextualBody} from "../annotations/Annotation";
 
 const {timeToPrecision, annotationToWaveSurferRegion, extractNameFromCreatorURI, contentUrlOrSource} = utilities;
 
@@ -79,8 +81,11 @@ class Annotator extends Component<AnnotatorProps, AnnotatorState> {
             if (!annotation) {
                 return;
             }
-            annotation.start = formattedStart;
-            annotation.end = formattedEnd;
+            /*
+            annotation.target[0].fragmentStart = formattedStart;
+            annotation.target[0].fragmentEnd = formattedEnd;
+
+             */
             this.setState({annotations: newAnnotations});
         }
     }
@@ -88,22 +93,23 @@ class Annotator extends Component<AnnotatorProps, AnnotatorState> {
     createRegion = (region: TrompaAnnotationComponents.RegionInterchangeFormat) => {
         const {annotations, motivation} = this.state;
         console.debug("Creating new annotation from region", region);
+        const target : TrompaAnnotationComponents.AnnotationCETarget = {
+            identifier: "",
+            type: 'AnnotationTarget',
+            nodeId: this.props.resource.identifier,
+            fieldName: "contentUrl",
+            start: region.start,
+            end: region.end
+        }
         const newAnnotation = new Annotation(
-            region.id,
-            {
-                identifier: "",
-                type: 'AnnotationTarget',
-                nodeId: this.props.resource.identifier,
-                fieldName: "contentUrl",
-                start: region.start,
-                end: region.end
-            }
-            , this.props.user?.toString(),
-            new Date().toISOString(),
-            motivation
+            {identifier: region.id, target: [target], creator: this.props.user?.toString(),
+            created: new Date().toISOString(), motivation: motivation}
         );
+        // TODO: need an AnnotationTarget object for this
+        /*
         newAnnotation.start = region.start;
         newAnnotation.end = region.end;
+         */
 
         this.setState({annotations: [...annotations, newAnnotation], selectedAnnotationId: newAnnotation.identifier})
         this.selectRegion(region);
@@ -130,10 +136,11 @@ class Annotator extends Component<AnnotatorProps, AnnotatorState> {
         if (!annotation) {
             return;
         }
+        const [start, end] = startAndEndFromAnnotation(annotation);
         const region: TrompaAnnotationComponents.RegionInterchangeFormat = {
             id: selectedAnnotationId!,
-            start: timeToPrecision(annotation.start),
-            end: timeToPrecision(annotation.end),
+            start: timeToPrecision(start),
+            end: timeToPrecision(end),
         }
         this.waveform.current?.updateRegionInWaveSurfer(region);
     }
@@ -175,13 +182,26 @@ class Annotator extends Component<AnnotatorProps, AnnotatorState> {
         if (!selectedAnnotation) {
             return;
         }
-        switch (event.target.name) {
-            case "start":
-                selectedAnnotation.start = timeToPrecision(event.target.value);
-                break;
-            case "end":
-                selectedAnnotation.end = timeToPrecision(event.target.value);
-                break;
+        const target = selectedAnnotation.target[0];
+        // TODO: We should have only 1 type of target at this point
+        if (target instanceof AnnotationTarget) {
+            switch (event.target.name) {
+                case "start":
+                    target.fragmentStart = timeToPrecision(event.target.value);
+                    break;
+                case "end":
+                    target.fragmentEnd = timeToPrecision(event.target.value);
+                    break;
+            }
+        } else {
+            switch (event.target.name) {
+                case "start":
+                    target.start = timeToPrecision(event.target.value);
+                    break;
+                case "end":
+                    target.end = timeToPrecision(event.target.value);
+                    break;
+            }
         }
         this.setState({annotations: newAnnotations}, this.updateRegionDisplay);
     }
@@ -204,9 +224,9 @@ class Annotator extends Component<AnnotatorProps, AnnotatorState> {
             console.debug("No annotation with id", selectedAnnotationId);
             return;
         }
-        const body: TrompaAnnotationComponents.TextualBody = (annotation.body as TrompaAnnotationComponents.TextualBody) ?? {type: "TextualBody"};
+        const body: TrompaAnnotationComponents.TextualBody = (annotation.body?.[0] as TrompaAnnotationComponents.TextualBody) ?? {type: "TextualBody"};
         body.value = event.target.value;
-        annotation.body = body;
+        annotation.body = [body];
         this.setState({annotations: newAnnotations});
     }
 
@@ -229,7 +249,7 @@ class Annotator extends Component<AnnotatorProps, AnnotatorState> {
         }
         let body = (annotation.body ?? {}) as TrompaAnnotationComponents.RatingType;
         body.ratingValue = newRating;
-        annotation.body = body;
+        annotation.body = [body];
         this.setState({annotations: newAnnotations}, this.updateRegionDisplay);
 
     }
@@ -261,24 +281,33 @@ class Annotator extends Component<AnnotatorProps, AnnotatorState> {
     private getAnnotationComponent = () => {
         const {selectedAnnotationType, motivation} = this.state;
         const annotation = this.getSelectedAnnotation();
-        if (!annotation) {
+        let content;
+        if (!annotation || !annotation.body) {
             return;
         }
+        const body = annotation.body[0];
+        if (body instanceof AnnotationTextualBody) {
+            content = body.value;
+        } else if (body instanceof AnnotationExternalWebResource) {
+        } else if (body.type === 'TextualBody') {
+            content = body.value;
+        }
+
         switch (motivation) {
             case AnnotationMotivation.COMMENTING:
-                return <TextArea content={(annotation.body as TrompaAnnotationComponents.TextualBody)?.value}
+                return <TextArea content={content}
                                  handleTextChange={this.handleTextChange}
                                  name="comment" label={annotation.motivation || selectedAnnotationType?.name}
                                  type="textarea"/>
 
             case AnnotationMotivation.DESCRIBING:
-                return <TextArea content={(annotation.body as TrompaAnnotationComponents.TextualBody)?.value}
+                return <TextArea content={content}
                                  handleTextChange={this.handleTextChange}
                                  name="description" label={annotation.motivation || selectedAnnotationType?.name}
                                  type="textarea"/>
 
             case AnnotationMotivation.TAGGING:
-                return <TextArea content={(annotation.body as TrompaAnnotationComponents.TextualBody)?.value}
+                return <TextArea content={content}
                                  handleTextChange={this.handleTextChange}
                                  name="tag" label={annotation.motivation || selectedAnnotationType?.name} type="input"/>
 
@@ -290,11 +319,11 @@ class Annotator extends Component<AnnotatorProps, AnnotatorState> {
 
             case AnnotationMotivation.ASSESSING:
                 return <Rating
-                    ratingValue={(annotation?.body as TrompaAnnotationComponents.RatingType)?.ratingValue}
-                    bestRating={(annotation?.body as TrompaAnnotationComponents.RatingType)?.bestRating ?? selectedAnnotationType?.item?.[0]?.bestRating}
-                    worstRating={(annotation?.body as TrompaAnnotationComponents.RatingType)?.worstRating ?? selectedAnnotationType?.item?.[0]?.worstRating}
+                    ratingValue={(annotation?.body[0] as TrompaAnnotationComponents.RatingType)?.ratingValue}
+                    bestRating={(annotation?.body[0] as TrompaAnnotationComponents.RatingType)?.bestRating ?? selectedAnnotationType?.item?.[0]?.bestRating}
+                    worstRating={(annotation?.body[0] as TrompaAnnotationComponents.RatingType)?.worstRating ?? selectedAnnotationType?.item?.[0]?.worstRating}
                     onRatingChange={this.handleRatingChange}
-                    label={(annotation?.body as TrompaAnnotationComponents.RatingType)?.name ?? selectedAnnotationType?.name}
+                    label={(annotation?.body[0] as TrompaAnnotationComponents.RatingType)?.name ?? selectedAnnotationType?.name}
                 />
             default:
                 break;
@@ -305,6 +334,10 @@ class Annotator extends Component<AnnotatorProps, AnnotatorState> {
         const {resource} = this.props;
         const {annotations, selectedAnnotationId} = this.state;
         const selectedAnnotation = this.getSelectedAnnotation();
+        let start, end;
+        if (selectedAnnotation) {
+            [start, end] = startAndEndFromAnnotation(selectedAnnotation);
+        }
         const parsedRegions = annotations
             .map(annotationToWaveSurferRegion)
             .filter(element => typeof element !== "undefined") as TrompaAnnotationComponents.RegionInterchangeFormat[];
@@ -357,8 +390,8 @@ class Annotator extends Component<AnnotatorProps, AnnotatorState> {
                                     <TimeSelection onStartEndChange={this.handleAnnotationStartEndChange}
                                                    onTimePeriodChange={this.handleAnnotationFragmentTypeChange}
                                                    fragmentType={selectedAnnotation.timeFragmentType as TimeFragmentType}
-                                                   startValue={selectedAnnotation.start}
-                                                   endValue={selectedAnnotation.end}
+                                                   startValue={start}
+                                                   endValue={end}
                                                    timePeriodDisabled={!selectedAnnotation.isNew}
                                     />
                                     }

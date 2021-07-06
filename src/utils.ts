@@ -1,4 +1,4 @@
-import Annotation, {AnnotationMotivation} from "./annotations/Annotation";
+import Annotation, {AnnotationMotivation, AnnotationTarget} from "./annotations/Annotation";
 
 export function randomColor(alpha: number) {
     return (
@@ -37,30 +37,22 @@ export function nameOfContentUrlOrSource(resource: TrompaAnnotationComponents.Re
     return "source"
 }
 
-
-export function formatBodyForSolid(start: number, end: number, resource: TrompaAnnotationComponents.Resource, motivation: AnnotationMotivation, creator?: string, id?: string, body?: TrompaAnnotationComponents.TextualBody | TrompaAnnotationComponents.TextualBody[] | TrompaAnnotationComponents.RatingTemplate | string) {
-
-    let fragment: string;
-    if (start === end) {
-        fragment = `t=${start}`;
+export function startAndEndFromAnnotation(annotation: Annotation): [number?, number?] {
+    let start;
+    let end;
+    if (annotation.target[0] instanceof AnnotationTarget) {
+        start = annotation.target[0].fragmentStart;
+        end = annotation.target[0].fragmentEnd;
     } else {
-        fragment = `t=${start},${end}`;
+        start = annotation.target[0].start;
+        end = annotation.target[0].end;
     }
-    return {
-        id: id ?? "",
-        creator,
-        motivation: motivation,
-        body: body as string,
-        target: {
-            nodeId: resource.identifier,
-            fieldName: nameOfContentUrlOrSource(resource),
-            fragment: fragment
-        }
-    }
+    return [start, end];
 }
 
 export function annotationToWaveSurferRegion(annotation: Annotation): TrompaAnnotationComponents.RegionInterchangeFormat | undefined {
-    const {identifier, start, end} = annotation;
+    const {identifier} = annotation;
+    const [start, end] = startAndEndFromAnnotation(annotation);
     if (isNaN(Number(start))) {
         // No start time to display a region
         return;

@@ -1,4 +1,4 @@
-import Annotation, {AnnotationTarget} from "../annotations/Annotation";
+import {AnnotationTarget} from "../annotations/Annotation";
 import TrompaClient from "./CEAPI";
 
 

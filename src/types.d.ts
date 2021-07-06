@@ -123,6 +123,7 @@ declare namespace TrompaAnnotationComponents {
     }
 
     // CustomMotivation can be some fixed objects, or an external URL
+    // TODO: Should be DefinedTermSet
     export type AnnotationCustomMotivation = DefinedTerm | AnnotationCEMotivation | string | undefined
 
     // AnnotationBody can be any of these objects or a string (url) or empty
