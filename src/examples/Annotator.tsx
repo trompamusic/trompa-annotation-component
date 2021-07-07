@@ -157,7 +157,13 @@ class Annotator extends Component<AnnotatorProps, AnnotatorState> {
         /*this.props.trompaClient.saveAnnotation(annotation);*/
         const solidAnnotation = toSolid(annotation, this.props.resource);
         console.debug("Solid Client: ", this.props.solidClient)
-        this.props.solidClient.saveAnnotation(solidAnnotation, this.props.solidSession);
+        this.props.solidClient.saveAnnotation(solidAnnotation, this.props.solidSession)
+            .then((resp:any) => {
+                console.log("Annotator got response: ", resp)
+                this.props.solidClient.fetchAnnotations(new URL(new URL(this.props.solidSession.info!.webId!).origin + "/public/"), this.props.solidSession, {target: "https://trompa-mtg.upf.edu/data/anno-component-test/noise.wav?t=0,0.08492569002123142"})
+                    .then((annos:any[]) => console.log("Fetched annotations: ", annos))
+
+            });
     }
 
     deleteRegion = () => {
