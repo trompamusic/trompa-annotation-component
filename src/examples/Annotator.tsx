@@ -160,7 +160,7 @@ class Annotator extends Component<AnnotatorProps, AnnotatorState> {
         this.props.solidClient.saveAnnotation(solidAnnotation, this.props.solidSession)
             .then((resp:any) => {
                 console.log("Annotator got response: ", resp)
-                this.props.solidClient.fetchAnnotations(new URL(new URL(this.props.solidSession.info!.webId!).origin + "/public/"), this.props.solidSession, {target: "https://trompa-mtg.upf.edu/data/anno-component-test/noise.wav?t=0,0.08492569002123142"})
+                this.props.solidClient.fetchAnnotations(new URL(new URL(this.props.solidSession.info!.webId!).origin + "/public/"), this.props.solidSession, {})
                     .then((annos:any[]) => console.log("Fetched annotations: ", annos))
 
             });
