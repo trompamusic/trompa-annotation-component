@@ -7,6 +7,8 @@ import {
 } from "@inrupt/solid-client";
 import {WS} from "@inrupt/vocab-solid-common";
 import {v4 as uuidv4} from "uuid";
+import * as jsonld from 'jsonld';
+import annoContext from "../resources/anno";
 
 type DefaultAnnotationMotivationType = `${DefaultAnnotationMotivation}`;
 
@@ -55,7 +57,7 @@ export default class SolidClient {
             } else if("Slug" in headers && payload["@id"] !== headers["Slug"]) {
                 console.debug('Mismatch between top-level payload "@id" and Slug header. I hope you know what you are doing...')
             } else if(!("Slug" in headers)) {
-                headers["Slug"] = payload["@id"] + ".jsonld";
+                headers["Slug"] = payload["@id"].substring(payload["@id"].lastIndexOf("/")+1) + ".jsonld";
             }
         }
         let fetchOptions = {method, headers};
@@ -74,24 +76,18 @@ export default class SolidClient {
     saveAnnotation = async (annotation: SolidAnnotation, session:any) => { //FIXME change session type to appropriate "@inrupt" type
         let toSolid:any;
         toSolid = new Object;
-        if("@id" in annotation) {
-            toSolid["@id"] = annotation["@id"]!.toString()
-        } else {
-            toSolid["@id"] = uuidv4().toString()
-        }
+        // convert URL objects to strings
         if(!Array.isArray(annotation.target)) {
             annotation.target = [annotation.target]
         }
-        // convert URL objects to strings
         toSolid.target = annotation.target.map((t) => t.toString())
         if(toSolid.target.length === 1) {
             toSolid.target = toSolid.target[0];
         }
-        console.debug("About to post: ", toSolid, session)
         let profileDocUri = session.info!.webId!.split("#")[0];
         const profileDataset = await getSolidDataset(profileDocUri, { fetch: session.fetch});
         const profile = getThing(profileDataset, session.info!.webId!);
-        let postUrl;
+        let postUrl:URL;
         if(profile) {
             const podUrl = getUrl(profile, WS.storage);
             if(podUrl) {
@@ -105,10 +101,17 @@ export default class SolidClient {
             postUrl = new URL(new URL(session.info!.webId!).origin + "/public/");
         }
 
-        console.debug("Trying to post to URL: ", postUrl)
-        const response = this.solidRESTInteraction(postUrl, httpVerb.POST, session, {}, toSolid);
-        console.log("SaveAnnotation got response: ", response);
-        return response;
+        if("@id" in annotation) {
+            toSolid["@id"] = annotation["@id"]!.toString()
+        } else {
+            toSolid["@id"] = postUrl.origin + "/" + uuidv4().toString() + ".jsonld"
+        }
+        return jsonld.compact(toSolid, annoContext).then((compacted) => {
+            console.debug("Trying to post anno to URL: ", compacted, postUrl);
+            const response = this.solidRESTInteraction(postUrl, httpVerb.POST, session, {}, compacted);
+            console.log("SaveAnnotation got response: ", response);
+            return response;
+        });
     }
 
     deleteAnnotation = async (annotationUrl: URL, session: any) => { //FIXME change session type to appropriate "@inrupt" type
@@ -124,6 +127,8 @@ export default class SolidClient {
     fetchAnnotations = async (containerUrl: URL, session: any, filter: object) => { //FIXME change session type to appropriate "@inrupt" type
         const containerDataset = await getSolidDataset(containerUrl.toString(), { fetch: session.fetch});
         const annotationUrls = await getContainedResourceUrlAll(containerDataset);
+//        annotationUrls.forEach((urlString) => this.deleteAnnotation(new URL(urlString), session));
+
         const annotationPromises = annotationUrls.map((url) => {
             return this.fetchAnnotation(new URL(url), session);
         });
