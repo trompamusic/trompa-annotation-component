@@ -10,6 +10,8 @@ export default function Navigation() {
                 <Nav.Link as={Link} to="/">Main app</Nav.Link>
                 <Nav.Link as={Link} to="/kitchensink">Kitchen Sink</Nav.Link >
                 <Nav.Link as={Link} to="/editors/vocabulary">Fixed Vocabulary editor</Nav.Link>
+                <Nav.Link as={Link} to="/editors/rating">Rating editor</Nav.Link>
+                <Nav.Link as={Link} to="/editors/toolkit">Toolkit editor</Nav.Link>
             </Nav>
             <Nav>
                 <LoggedIn>

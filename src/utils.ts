@@ -38,7 +38,7 @@ export function nameOfContentUrlOrSource(resource: TrompaAnnotationComponents.Re
 }
 
 
-export function formatBodyForSolid(start: number, end: number, resource: TrompaAnnotationComponents.Resource, motivation: DefaultAnnotationMotivation, creator?: string, id?: string, body?: TrompaAnnotationComponents.TextualBody | TrompaAnnotationComponents.TextualBody[] | TrompaAnnotationComponents.RatingTemplate | string) {
+export function formatBodyForSolid(start: number, end: number, resource: TrompaAnnotationComponents.Resource, motivation: DefaultAnnotationMotivation, creator?: string, id?: string, body?: TrompaAnnotationComponents.TextualBody | TrompaAnnotationComponents.TextualBody[] | TrompaAnnotationComponents.RatingDefinition | string) {
 
     let fragment: string;
     if (start === end) {

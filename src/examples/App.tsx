@@ -20,6 +20,7 @@ import KitchenSink from './KitchenSink';
 
 import DefinedTermSetEditorWithUser from "../resources/DefinedTermSetEditor";
 import {TrompaClient} from "../index";
+import RatingEditorWithUser from "../resources/RatingEditor";
 
 const httpLink = createHttpLink({
     uri: CE_URL,
@@ -65,6 +66,12 @@ function App() {
                             <KitchenSink/>
                         </Route>
                         <Route path="/editors/vocabulary">
+                            <DefinedTermSetEditorWithUser trompaClient={trompaClient}/>
+                        </Route>
+                        <Route path="/editors/rating">
+                            <RatingEditorWithUser trompaClient={trompaClient}/>
+                        </Route>
+                        <Route path="/editors/toolkit">
                             <DefinedTermSetEditorWithUser trompaClient={trompaClient}/>
                         </Route>
                     </Switch>

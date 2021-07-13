@@ -3,7 +3,7 @@ import {ApolloClient, gql} from "@apollo/client";
 import jwt_decode from "jwt-decode";
 
 // For saying that a Rating is just a definition
-export const RATING_DEFINITION_ADDITIONAL_TYPE = "https://vocab.trompamusic.eu/vocab#RatingDefinition"
+export const ADDITIONAL_TYPE_RATING_DEFINITION = "https://vocab.trompamusic.eu/vocab#RatingDefinition"
 // For making DefinedTerms that are a collection of tags
 export const ADDITIONAL_TYPE_TAG_COLLECTION = "https://vocab.trompamusic.eu/vocab#TagCollection"
 export const ADDITIONAL_TYPE_TAG_COLLECTION_ELEMENT = "https://vocab.trompamusic.eu/vocab#TagCollectionElement"
@@ -260,6 +260,38 @@ export default class TrompaClient {
         return await this.apolloClient.query({
             query: GetThingInterfaceById,
             variables: {id: id}})
+    }
+
+    getRatingDefinitionsForUser = async (user: string) => {
+        if (!await this.getApiToken()) {
+            throw new TrompaError("whew")
+        } else {
+            return await this.apolloClient.query({
+                query: GetRatingDefinitionsForUser,
+                variables: {creator: user}})
+        }
+    }
+
+    createRatingDefinition = async (ratingDefinition: TrompaAnnotationComponents.RatingDefinition) => {
+        if (!await this.getApiToken()) {
+            throw new TrompaError("whew")
+        } else {
+            return await this.apolloClient.mutate({
+                mutation: CreateRating,
+                variables: {name: ratingDefinition.name, creator: ratingDefinition.creator,
+                bestRating: ratingDefinition.bestRating, worstRating: ratingDefinition.worstRating,
+                additionalType: ADDITIONAL_TYPE_RATING_DEFINITION, description: ratingDefinition.description}})
+        }
+    }
+
+    deleteRating = async (ratingIdentifier: string) => {
+        if (!await this.getApiToken()) {
+            throw new TrompaError("whew")
+        } else {
+            return await this.apolloClient.mutate({
+                mutation: DeleteRating,
+                variables: {identifier: ratingIdentifier}})
+        }
     }
 }
 
@@ -621,6 +653,53 @@ const GetAnnotationToolkitForItem = gql`
                     }
                 }
             }
+        }
+    }
+`;
+
+const GetRatingDefinitionsForUser = gql`
+    query RatingDefinitionsForUser($creator: String!) {
+        Rating(creator: $creator, filter: {additionalType_contains: ["${ADDITIONAL_TYPE_RATING_DEFINITION}"]}) {
+            identifier
+            creator
+            additionalType
+            name
+            description
+            bestRating
+            worstRating
+        }
+    }
+`;
+
+const DeleteRating = gql`
+    mutation DeleteRating($identifier: ID!) {
+        DeleteRating(identifier: $identifier) {
+            identifier
+        }
+    }
+`;
+
+const CreateRating = gql`
+    mutation CreateRating($name: String!, $creator: String!, $bestRating: Int!, $worstRating: Int!, 
+        $ratingValue: Int, $additionalType: String!, $description: String
+    ) {
+        CreateRating(
+            creator: $creator
+            name: $name
+            bestRating: $bestRating
+            worstRating: $worstRating
+            additionalType: [$additionalType]
+            description: $description
+            ratingValue: $ratingValue
+        ) {
+            identifier
+            creator
+            name
+            description
+            bestRating
+            worstRating
+            ratingValue
+            additionalType
         }
     }
 `;

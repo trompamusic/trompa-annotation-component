@@ -92,6 +92,7 @@ declare namespace TrompaAnnotationComponents {
         creator: string;
         additionalType: string;
         name: string;
+        description?: string;
         broaderUrl?: string;
         broaderMotivation?: string;
         hasDefinedTerm: DefinedTerm[];
@@ -99,14 +100,15 @@ declare namespace TrompaAnnotationComponents {
 
     export type RatingCommonType = {
         creator: string;
-        identifier: string;
-        additionalType: string;
+        identifier?: string;
+        additionalType?: string;
         name?: string;
+        description?: string;
         bestRating: number;
         worstRating: number;
     }
-    export type RatingTemplate = RatingCommonType & {
-        type: 'RatingTemplate';
+    export type RatingDefinition = RatingCommonType & {
+        type: 'RatingDefinition';
     }
 
     export type RatingType = RatingCommonType & {

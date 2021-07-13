@@ -38,10 +38,10 @@ type DefinedTermSetEditorWithUserProps = {
 
 /**
  * A wrapper that ensures that we always give a logged in user to DefinedTermSetEditor
- * @param apolloClient
+ * @param trompaClient
  * @constructor
  */
-const DefinedTermSetEditorWithUser: FunctionComponent<DefinedTermSetEditorWithUserProps> = ({trompaClient}) => {
+const DefinedTermSetEditorWithUser = ({trompaClient}: DefinedTermSetEditorWithUserProps) => {
     const webId = useWebId();
 
     return <div>
@@ -146,15 +146,15 @@ export class DefinedTermSetEditor extends Component<DefinedTermSetEditorProps, D
         const selectedDts = {...newData[this.state.selectedDts]};
         try {
             await this.props.trompaClient.deleteDefinedTerm(selectedDts.identifier!, dtIdentifier);
+            const existingDefinedTerms = selectedDts.hasDefinedTerm.slice();
+            existingDefinedTerms.splice(dtIndex, 1);
+            selectedDts.hasDefinedTerm = existingDefinedTerms;
+            newData[this.state.selectedDts] = selectedDts;
+            this.setState({data: newData})
         } catch (e) {
             console.error("Error deleting DefinedTerm");
             console.error(e);
         }
-        const existingDefinedTerms = selectedDts.hasDefinedTerm.slice();
-        existingDefinedTerms.splice(dtIndex, 1);
-        selectedDts.hasDefinedTerm = existingDefinedTerms;
-        newData[this.state.selectedDts] = selectedDts;
-        this.setState({data: newData})
     }
 
     setSelectedDts = (selected?: number) => {
