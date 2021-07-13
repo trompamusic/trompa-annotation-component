@@ -1,4 +1,8 @@
-import Annotation from "../annotations/Annotation";
+import Annotation, {
+    AnnotationExternalWebResource,
+    AnnotationMotivation,
+    AnnotationTarget
+} from "../annotations/Annotation";
 import {ApolloClient, gql} from "@apollo/client";
 import jwt_decode from "jwt-decode";
 
@@ -52,59 +56,65 @@ export default class TrompaClient {
     saveAnnotation = async (annotation: Annotation) => {
         // TODO: Update if it already exists
         console.debug(annotation);
-        const {motivation, creator, identifier, body, target} = annotation;
+        const {motivation, creator, identifier} = annotation;
         await this.getApiToken();
 
         if (!motivation) {
             throw new TypeError("Annotation must have a motivation")
         }
-        if (!target) {
+        if (!annotation.target) {
             throw new TypeError("Annotation must have a target")
         }
 
         // Create body
         let bodyId: string | undefined;
-        if (body) {
-            if (typeof body === "string") {
+        if (annotation.body) {
+            for (const body of annotation.body) {
+                if (body instanceof AnnotationExternalWebResource) {
 
-            } else if (body.type === "TextualBody") {
-                let response = await this.apolloClient.mutate({
-                    mutation: CreateAnnotationTextualBody,
-                    variables: {creator: creator, value: body.value, language: body.language, format: body.format}
-                })
-                if (response.errors) {
-                    console.error(response.errors)
-                } else {
-                    bodyId = response.data.CreateAnnotationTextualBody.identifier;
+                } else if (body.type === "TextualBody") {
+                    let response = await this.apolloClient.mutate({
+                        mutation: CreateAnnotationTextualBody,
+                        variables: {creator: creator, value: body.value, language: body.language, format: body.format}
+                    })
+                    if (response.errors) {
+                        console.error(response.errors)
+                    } else {
+                        bodyId = response.data.CreateAnnotationTextualBody.identifier;
+                    }
+                } else if (body.type === "DefinedTerm") {
+
+                } else if (body.type === "NodeBody") {
+
+                } else if (body.type === "Rating") {
+
                 }
-            } else if (body.type === "DefinedTerm") {
-
-            } else if (body.type === "NodeBody") {
-
-            } else if (body.type === "Rating") {
-
             }
         }
 
         // Create target
         let targetId: string | undefined;
-        if (typeof target === "string") {
+        if (annotation.target) {
+            for (const target of annotation.target) {
+                if (target instanceof AnnotationTarget) {
 
-        } else if (target.type === "AnnotationTarget") {
-            let response = await this.apolloClient.mutate({
-                mutation: CreateAnnotationCETarget,
-                variables: {creator: creator, field: target.fieldName, fragment: annotation.timeString}
-            })
-            if (response.errors) {
-                console.error(response.errors)
-            } else {
-                targetId = response.data.CreateAnnotationCETarget.identifier;
-                response = await this.apolloClient.mutate({
-                    mutation: MergeAnnotationCETargetTarget,
-                    variables: {annotationCeTargetId: targetId, ceNodeId: target.nodeId}
-                })
-                if (response.errors) {
-                    console.error(response.errors)
+                } else if (target.type === 'AnnotationTarget') {
+                    let response = await this.apolloClient.mutate({
+                        mutation: CreateAnnotationCETarget,
+                        variables: {creator: creator, field: target.fieldName, fragment: target.fragment}
+                    })
+                    if (response.errors) {
+                        console.error(response.errors)
+                    } else {
+                        targetId = response.data.CreateAnnotationCETarget.identifier;
+                        response = await this.apolloClient.mutate({
+                            mutation: MergeAnnotationCETargetTarget,
+                            variables: {annotationCeTargetId: targetId, ceNodeId: target.nodeId}
+                        })
+                        if (response.errors) {
+                            console.error(response.errors)
+                        }
+                    }
                 }
             }
         }
@@ -186,6 +196,142 @@ export default class TrompaClient {
 
     getAnnotationToolkitForUser = (user: string) => {
         return this.getDefinedTermSetsForUser(user, ADDITIONAL_TYPE_ANNOTATION_TOOLKIT);
+    }
+
+    static annotationFromCE(ceannotation: any, CE_URL: string): Annotation {
+        // TODO: Optionally more than 1 target
+        const {targetNode, targetUrl} = ceannotation;
+        if (targetNode === undefined && targetUrl === undefined) {
+            throw new TypeError("Annotation has no target")
+        }
+        let target: AnnotationTarget[] | TrompaAnnotationComponents.AnnotationCETarget[];
+        if (targetUrl) {
+            // If targetUrl is set, just create a generic AnnotationTarget object whose id
+            // points to that url
+            target = targetUrl?.map((url: string) => new AnnotationTarget({id: url}));
+        } else {
+            // Otherwise, create a specific Trompa AnnotationTarget with the data from the CE
+            target = targetNode?.map((node: any) => {
+                let start, end;
+                if (node?.fragment) {
+                    [start, end] = AnnotationTarget.fragmentToStartAndEnd(node.fragment)
+                }
+                let url: string = "";
+                // TODO: The field of a CEAnnotationTarget could be anything, but in graphql we
+                //  need to specify the exact fields that we want to return in a query
+                //  For simplicity at the moment, just assume that it's one of
+                //  (url, source) from ThingInterface, or contentUrl from MediaObjectInterface
+                if (node.field === null) {
+                    // Can be empty
+                    url = `${CE_URL}${CE_URL.endsWith("/") ? "" : "/"}${node.target.identifier}`
+                } else if (node.field === "url") {
+                    url = node.target.url;
+                } else if (node.field === "source") {
+                    url = node.target.source;
+                } else if (node.field === "contentUrl") {
+                    url = node.target.contentUrl;
+                } else {
+                    throw new TypeError("Unsupported targetNode field value")
+                }
+                return {
+                    identifier: node.identifier,
+                    type: 'AnnotationTarget', nodeId: node.target.identifier,
+                    fieldName: node.field, url: url,
+                    start: start, end: end
+                }
+            });
+        }
+        let body: AnnotationExternalWebResource[] | TrompaAnnotationComponents.AnnotationBody[] = [];
+        if (ceannotation.bodyUrl && ceannotation.bodyUrl.length > 0) {
+            body = ceannotation.bodyUrl.map((url: string) => {return new AnnotationExternalWebResource({id: url})});
+        } else if (ceannotation.bodyText && ceannotation.bodyText.length > 0) {
+            body = ceannotation.bodyText.map((b: any) => {
+                return {
+                    value: b.value, format: b.format,
+                    identifier: b.identifier, language: b.language,
+                    type: 'TextualBody'
+                }
+            })
+        } else if (ceannotation.bodyNode && ceannotation.bodyNode.length > 0) {
+            body = ceannotation.bodyNode.map((b: any) => {
+                if (b.__typename === 'DefinedTerm') {
+                    return {
+                        identifier: b.identifier, type: 'DefinedTerm',
+                        creator: b.creator, additionalType: b.additionalType,
+                        termCode: b.termCode
+                    };
+                } else if (b.__typename === 'Rating') {
+                    return {
+                        identifier: b.identifier, type: 'Rating',
+                        creator: b.creator, bestRating: b.bestRating,
+                        worstRating: b.worstRating, name: b.name,
+                        additionalType: b.additionalType,
+                        ratingValue: b.ratingValue
+                    };
+                } else {
+                    return null;
+                }
+            })
+        }
+
+        // Motivation. We always have a motivation value ("base motivation"), and possibly a custom
+        // one. Custom motivation can be an external URL, a DefinedTerm, or an AnnotationCEMotivation
+        const motivation: AnnotationMotivation = this.parseMotivationValue(ceannotation.motivation)
+
+        let customMotivation: TrompaAnnotationComponents.AnnotationCustomMotivation;
+        if (ceannotation.motivationUrl && ceannotation.motivationUrl.length > 0) {
+            // TODO: this might be an array??
+            customMotivation = ceannotation.motivationUrl[0];
+        } else if (ceannotation.motivationDefinedTerm) {
+            const definedTerm = ceannotation.motivationDefinedTerm;
+            customMotivation = {
+                type: 'DefinedTerm', identifier: definedTerm.identifier,
+                creator: definedTerm.creator, additionalType: definedTerm.additionalType,
+                termCode: definedTerm.termCode, broaderUrl: definedTerm.broaderUrl,
+                broaderMotivation: definedTerm.broaderMotivation
+            }
+        } else if (ceannotation.motivationNode && ceannotation.motivationNode.length > 0) {
+            const ceMotivation = ceannotation.motivationNode[0]
+            customMotivation = {
+                type: 'AnnotationCEMotivation', identifier: ceMotivation.identifier,
+                creator: ceMotivation.creator, description: ceMotivation.description,
+                title: ceMotivation.title, broaderUrl: ceMotivation.broaderUrl,
+                broaderMotivation: ceMotivation.broaderMotivation
+            }
+        }
+        const newAnnotation = new Annotation({identifier: ceannotation.identifier,
+            target: target, creator: ceannotation.creator, created: ceannotation.created?.formatted,
+            motivation: motivation, customMotivation: customMotivation, body: body});
+        newAnnotation.isNew = false;
+        return newAnnotation;
+    }
+
+
+    /**
+     * The values from the CE are enums, so don't contain the url prefix
+     * @param motivationValue
+     */
+    static parseMotivationValue(motivationValue: string): AnnotationMotivation {
+        switch (motivationValue) {
+            // TODO: This doesn't contain all possible oa:Motivations.
+            //  As the values from the CE are the same as the enum values we could do this better
+            //  by just doing `AnnotationMotivation[value]`, but will still
+            //  need to check what happens if it's an invalid/unexpected value
+            case 'commenting':
+                return AnnotationMotivation.COMMENTING;
+            case 'describing':
+                return AnnotationMotivation.DESCRIBING;
+            case 'tagging':
+                return AnnotationMotivation.TAGGING;
+            case 'classifying':
+                return AnnotationMotivation.CLASSIFYING;
+            case 'assessing':
+                return AnnotationMotivation.ASSESSING;
+            case 'linking':
+                return AnnotationMotivation.LINKING;
+            default:
+                throw new TypeError("Not known type")
+        }
     }
 }
 

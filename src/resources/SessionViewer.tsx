@@ -1,7 +1,7 @@
 import {Row, Col, Card, ListGroup} from 'react-bootstrap-v5';
-import Annotation from "../annotations/Annotation";
+import Annotation, {AnnotationTarget} from "../annotations/Annotation";
 import "./SessionViewer.css"
-import {extractNameFromCreatorURI} from '../utils';
+import {extractNameFromCreatorURI, startAndEndFromAnnotation} from '../utils';
 
 export type SessionViewerProps = {
     annotations: Annotation[];
@@ -11,14 +11,16 @@ export type SessionViewerProps = {
     onCreateNewAnnotation?: () => void;
 }
 
-function getURLFromTarget(target: TrompaAnnotationComponents.AnnotationTarget) {
+function getURLFromTarget(target: TrompaAnnotationComponents.AnnotationCETarget | AnnotationTarget) {
     if (!target) {
         return null
     }
-    if (typeof target === "string") {
-        return target;
+    if (target instanceof AnnotationTarget) {
+        return target.id;
+    } else {
+        // AnnotationCETarget
+        return target.url;
     }
-    return target.url;
 }
 
 function SessionViewer(props: SessionViewerProps) {
@@ -31,6 +33,7 @@ function SessionViewer(props: SessionViewerProps) {
             <Card.Header>Annotations for this session</Card.Header>
             <ListGroup>
                 {annotations.map(annotation => {
+                    const [start, end] = startAndEndFromAnnotation(annotation);
                     return (
                         <ListGroup.Item action key={annotation.identifier}
                                         active={annotation.identifier === selectedAnnotationId}
@@ -40,12 +43,12 @@ function SessionViewer(props: SessionViewerProps) {
                         >
                             <Row>
                                 <Col md="auto">
-                                    url: {getURLFromTarget(annotation.target)}
+                                    url: {getURLFromTarget(annotation.target?.[0])}
                                 </Col>
-                                {!isNaN(Number(annotation.start)) &&
+                                {!isNaN(Number(start)) &&
                                 <Col md="auto">
                                     time:&nbsp;
-                                    {annotation.start} - {annotation.end}
+                                    {start} - {end}
                                 </Col>
                                 }
                             </Row>

@@ -38,6 +38,8 @@ const client = new ApolloClient({
 const trompaClient = new TrompaClient(AUTH_PROXY_URL, client);
 const solidClient = new SolidClient();
 
+const containerInSolidPod = "/public/" // TODO make user configurable
+
 function SessionExample() {
     const {session} = useSession();
     const userId = session.info.webId;
@@ -93,6 +95,7 @@ function SessionExample() {
                                     user={userId}
                                     trompaClient={trompaClient}
                                     solidClient={solidClient}
+                                    container={containerInSolidPod}
                                     solidSession={session}
                                     resource={resource}/>
                                     : "Please first search for and select a resource to annotate"

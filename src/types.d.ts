@@ -27,7 +27,7 @@ declare namespace TrompaAnnotationComponents {
 
 
     export type AnnotationBodyBase = {
-        type: DefaultAnnotationMotivation;
+        type: AnnotationMotivation;
     }
     export type AnnotationTextBody = AnnotationBodyBase & {
         value: string;
@@ -61,8 +61,6 @@ declare namespace TrompaAnnotationComponents {
         start?: number;
         end?: number;
     }
-
-    export type AnnotationTarget = AnnotationCETarget | string;
 
     export type TextualBody = {
         type: 'TextualBody'
@@ -125,8 +123,9 @@ declare namespace TrompaAnnotationComponents {
     }
 
     // CustomMotivation can be some fixed objects, or an external URL
+    // TODO: Should be DefinedTermSet
     export type AnnotationCustomMotivation = DefinedTerm | AnnotationCEMotivation | string | undefined
 
     // AnnotationBody can be any of these objects or a string (url) or empty
-    export type AnnotationBody = DefinedTerm | TextualBody | NodeBody | RatingType | string | undefined
+    export type AnnotationBody = DefinedTerm | TextualBody | NodeBody | RatingType
 }

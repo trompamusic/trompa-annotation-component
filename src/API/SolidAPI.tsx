@@ -1,16 +1,21 @@
-import Annotation, {DefaultAnnotationMotivation} from "../annotations/Annotation";
+import Annotation, {
+    AnnotationMotivation,
+    AnnotationExternalWebResource,
+    AnnotationTextualBody
+} from "../annotations/Annotation";
 import {
+    access,
     getSolidDataset,
     getUrl,
     getThing,
     getContainedResourceUrlAll,
 } from "@inrupt/solid-client";
+
 import {WS} from "@inrupt/vocab-solid-common";
 import {v4 as uuidv4} from "uuid";
 import * as jsonld from 'jsonld';
-import annoContext from "../resources/anno";
 
-type DefaultAnnotationMotivationType = `${DefaultAnnotationMotivation}`;
+type AnnotationMotivationType = `${AnnotationMotivation}`;
 
 enum httpVerb {
     POST = 'POST',
@@ -22,24 +27,12 @@ enum httpVerb {
 
 type httpVerbType= `${httpVerb}`;
 
-
-export interface SolidTextualBody {
-    id?: URL;
-    type: string | URL;
-    body: {
-        type: "TextualBody";
-        value: string;
-        format: "text/html" | "text/plain" // TODO extend? or fall back to string?
-        language?: string
-    }
-}
-
 export interface SolidAnnotation{
     "@id"?: URL;
     target: URL | URL[];
-    motivation?:DefaultAnnotationMotivationType | URL;
+    motivation?: AnnotationMotivationType | URL;
     // body?: URL | string | SolidTextualBody | (URL | string | SolidTextualBody)[] ; //TODO verify
-    body?: URL | string | (URL | string)[];
+    body?: AnnotationExternalWebResource | AnnotationTextualBody | URL | ( AnnotationExternalWebResource | AnnotationTextualBody | URL)[]
 }
 
 export default class SolidClient {
@@ -57,14 +50,13 @@ export default class SolidClient {
             } else if("Slug" in headers && payload["@id"] !== headers["Slug"]) {
                 console.debug('Mismatch between top-level payload "@id" and Slug header. I hope you know what you are doing...')
             } else if(!("Slug" in headers)) {
-                headers["Slug"] = payload["@id"].substring(payload["@id"].lastIndexOf("/")+1) + ".jsonld";
+                headers["Slug"] = payload["@id"].substring(payload["@id"].lastIndexOf("/")+1);
             }
         }
         let fetchOptions = {method, headers};
         if(payload) { fetchOptions["body"] = JSON.stringify(payload) };
         return session.fetch!(url.toString(), fetchOptions)
             .then((response:any) => {
-                console.log("Completed: ", response)
                 return response;
             })
             .catch((err:any) => {
@@ -73,7 +65,35 @@ export default class SolidClient {
             })
     }
 
-    saveAnnotation = async (annotation: SolidAnnotation, session:any) => { //FIXME change session type to appropriate "@inrupt" type
+    grantPublicReadable = async(resourceUri: URL, session: any)  => {
+        access.setPublicAccess(
+            resourceUri.toString(),
+            {read: true, write: false},
+            {fetch: session.fetch}
+        ).then(newAccess => {
+            if(newAccess === null) {
+                console.warn("Could not load access details for resource at ", resourceUri.toString())
+            } else {
+                console.debug("After revokePublicReadable on ", resourceUri.toString(), " public access is: ", newAccess);
+            }
+        })
+    }
+
+    revokePublicReadable = async(resourceUri: URL, session: any)  => {
+        access.setPublicAccess(
+            resourceUri.toString(),
+            {read: false, write: false},
+            {fetch: session.fetch}
+        ).then(newAccess => {
+            if(newAccess === null) {
+                console.warn("Could not load access details for resource at ", resourceUri.toString())
+            } else {
+                console.debug("After revokePublicReadable on ", resourceUri.toString(), " public access is: ", newAccess);
+            }
+        })
+    }
+
+    saveAnnotation = async (annotation: SolidAnnotation, session:any, container: string) => { //FIXME change session type to appropriate "@inrupt" type
         let toSolid:any;
         toSolid = new Object;
         // convert URL objects to strings
@@ -84,6 +104,7 @@ export default class SolidClient {
         if(toSolid.target.length === 1) {
             toSolid.target = toSolid.target[0];
         }
+        console.debug("After target translation, toSolid is", toSolid);
         let profileDocUri = session.info!.webId!.split("#")[0];
         const profileDataset = await getSolidDataset(profileDocUri, { fetch: session.fetch});
         const profile = getThing(profileDataset, session.info!.webId!);
@@ -91,27 +112,24 @@ export default class SolidClient {
         if(profile) {
             const podUrl = getUrl(profile, WS.storage);
             if(podUrl) {
-                postUrl = new URL(new URL(podUrl).origin + "/public/");
+                postUrl = new URL(new URL(podUrl).origin + container);
             } else {
                 console.error("Could not determine POD URL from user's webId profile. Dangerously hacking it from webId URL instead!")
-                postUrl = new URL(new URL(session.info!.webId!).origin + "/public/");
+                postUrl = new URL(new URL(session.info!.webId!).origin + container);
             }
         } else {
             console.error("Could not access user's profile. Dangerously hacking POD URL from webId URL instead!")
-            postUrl = new URL(new URL(session.info!.webId!).origin + "/public/");
+            postUrl = new URL(new URL(session.info!.webId!).origin + container);
         }
 
         if("@id" in annotation) {
             toSolid["@id"] = annotation["@id"]!.toString()
         } else {
-            toSolid["@id"] = postUrl.origin + "/" + uuidv4().toString() + ".jsonld"
+            toSolid["@id"] = postUrl.origin + container + uuidv4().toString() + ".jsonld";
         }
-        return jsonld.compact(toSolid, annoContext).then((compacted) => {
-            console.debug("Trying to post anno to URL: ", compacted, postUrl);
-            const response = this.solidRESTInteraction(postUrl, httpVerb.POST, session, {}, compacted);
-            console.log("SaveAnnotation got response: ", response);
-            return response;
-        });
+        toSolid["@context"] = "http://www.w3.org/ns/anno.jsonld";
+        toSolid["@type"] = "Annotation";
+        return this.solidRESTInteraction(postUrl, httpVerb.POST, session, {}, toSolid);
     }
 
     deleteAnnotation = async (annotationUrl: URL, session: any) => { //FIXME change session type to appropriate "@inrupt" type
@@ -127,7 +145,7 @@ export default class SolidClient {
     fetchAnnotations = async (containerUrl: URL, session: any, filter: object) => { //FIXME change session type to appropriate "@inrupt" type
         const containerDataset = await getSolidDataset(containerUrl.toString(), { fetch: session.fetch});
         const annotationUrls = await getContainedResourceUrlAll(containerDataset);
-//        annotationUrls.forEach((urlString) => this.deleteAnnotation(new URL(urlString), session));
+        //annotationUrls.forEach((urlString) => this.deleteAnnotation(new URL(urlString), session));
 
         const annotationPromises = annotationUrls.map((url) => {
             return this.fetchAnnotation(new URL(url), session);
@@ -149,12 +167,10 @@ export default class SolidClient {
             return Promise.all(readerPromises).then((dataAllResponses) => {
                 return dataAllResponses.map((data) => {
                     const decoded = new TextDecoder("utf-8").decode(data.value);
-                    console.log("decoded:", decoded)
                     return JSON.parse(decoded);
                 })
             });
         })
-        console.log("After all waiting, got annotations:", annotations)
         const filtered = annotations.filter((anno) => {
             let passes = true;
             // ... with properties (keys) ...
@@ -176,7 +192,7 @@ export default class SolidClient {
             });
             return passes;
         });
-        console.log("After filter but before return", filtered)
+        console.debug("fetchAnnotations returning the following filtered list of annotations:", filtered);
         return filtered;
     }
 }
@@ -186,7 +202,7 @@ export default class SolidClient {
 return [];
 }
 
-fetchAnnotationTypes(): DefaultAnnotationMotivation[] {
+fetchAnnotationTypes(): AnnotationMotivation[] {
 // Fetch annotation types
 return [];
 }*/
