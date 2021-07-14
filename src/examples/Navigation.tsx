@@ -18,20 +18,16 @@ export default function Navigation() {
     const {session} = useSession();
     const [idp, setIdp] = useState("https://trompa-solid.upf.edu");
     const [currentUrl, setCurrentUrl] = useState("http://localhost:3000");
-    console.debug("session: ", session);
     return (
         <Navbar bg="light" expand="lg">
             <Navbar.Brand href="#home">Annotation demo</Navbar.Brand>
             <Nav className="me-auto">
-                <Nav.Link>
-                    <Link to="/">Main app</Link>
-                </Nav.Link>
-                <Nav.Link>
-                    <Link to="/kitchensink">Kitchen Sink</Link>
-                </Nav.Link>
-                <Nav.Link>
-                    <Link to="/editors/vocabulary">Fixed Vocabulary editor</Link>
-                </Nav.Link>
+                <Nav.Link as={Link} to="/">Main app</Nav.Link>
+                <Nav.Link as={Link} to="/kitchensink">Kitchen Sink</Nav.Link >
+                <Nav.Link as={Link} to="/editors/vocabulary">Fixed Vocabulary editor</Nav.Link>
+                <Nav.Link as={Link} to="/editors/rating">Rating editor</Nav.Link>
+                <Nav.Link as={Link} to="/editors/toolkit">Toolkit editor</Nav.Link>
+                <Nav.Link as={Link} to="/editors/motivation">Motivation editor</Nav.Link>
             </Nav>
             <Nav>
                 { session.info.isLoggedIn 

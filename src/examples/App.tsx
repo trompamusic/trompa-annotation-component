@@ -4,7 +4,7 @@ import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import Navigation from "./Navigation";
-import {CE_URL} from "./Config";
+import {AUTH_PROXY_URL, CE_URL} from "./Config";
 
 import {Container} from "react-bootstrap-v5";
 import {
@@ -19,14 +19,17 @@ import {setContext} from "@apollo/client/link/context";
 import SessionExample from "./SessionExample";
 import KitchenSink from './KitchenSink';
 
-import {DefinedTermSetEditor} from "../index";
-
+import DefinedTermSetEditorWithUser from "../resources/DefinedTermSetEditor";
+import {TrompaClient} from "../index";
+import RatingEditorWithUser from "../resources/RatingEditor";
+import ToolkitEditorWithUser from "../resources/ToolkitEditor";
+import MotivationEditorWithUser from "../resources/MotivationEditor";
 
 const httpLink = createHttpLink({
     uri: CE_URL,
 });
 
-const authLink = setContext((_, {headers}) => {
+const authLink = setContext((_, { headers }) => {
     // get the authentication token from local storage if it exists
     const token = localStorage.getItem('CEAuthToken');
     // return the headers to the context so httpLink can read them
@@ -50,6 +53,8 @@ const client = new ApolloClient({
     })
 });
 
+const trompaClient = new TrompaClient(AUTH_PROXY_URL, client);
+
 function App() {
     return (
         <Router>
@@ -59,13 +64,22 @@ function App() {
                     <Container fluid="lg">
                         <Switch>
                             <Route exact path="/">
-                                <SessionExample/>
+                                <SessionExample trompaClient={trompaClient}/>
                             </Route>
                             <Route path="/kitchensink">
                                 <KitchenSink/>
                             </Route>
                             <Route path="/editors/vocabulary">
-                                <DefinedTermSetEditor/>
+                                <DefinedTermSetEditorWithUser trompaClient={trompaClient}/>
+                            </Route>
+                            <Route path="/editors/rating">
+                                <RatingEditorWithUser trompaClient={trompaClient}/>
+                            </Route>
+                            <Route path="/editors/toolkit">
+                                <ToolkitEditorWithUser trompaClient={trompaClient}/>
+                            </Route>
+                            <Route path="/editors/motivation">
+                                <MotivationEditorWithUser trompaClient={trompaClient}/>
                             </Route>
                         </Switch>
                     </Container>

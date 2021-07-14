@@ -53,7 +53,7 @@ export function startAndEndFromAnnotation(annotation: Annotation): [number?, num
     return [start, end];
 }
 
-export function formatBodyForSolid(start: number, end: number, resource: TrompaAnnotationComponents.Resource, motivation: AnnotationMotivation, creator?: string, id?: string, body?: TrompaAnnotationComponents.TextualBody | TrompaAnnotationComponents.TextualBody[] | TrompaAnnotationComponents.RatingTemplate | string) {
+export function formatBodyForSolid(start: number, end: number, resource: TrompaAnnotationComponents.Resource, motivation: AnnotationMotivation, creator?: string, id?: string, body?: TrompaAnnotationComponents.TextualBody | TrompaAnnotationComponents.TextualBody[] | TrompaAnnotationComponents.RatingDefinition | string) {
     let fragment: string;
     if (start === end) {
         fragment = `t=${start}`;

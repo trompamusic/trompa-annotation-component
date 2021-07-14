@@ -82,8 +82,6 @@ declare namespace TrompaAnnotationComponents {
         additionalType: string;
         termCode: string;
         image?: string;
-        broaderUrl?: string;
-        broaderMotivation?: string;
     }
 
     export type DefinedTermSet = {
@@ -92,19 +90,23 @@ declare namespace TrompaAnnotationComponents {
         creator: string;
         additionalType: string;
         name: string;
+        description?: string;
+        broaderUrl?: string;
+        broaderMotivation?: string;
         hasDefinedTerm: DefinedTerm[];
     }
 
     export type RatingCommonType = {
         creator: string;
-        identifier: string;
-        additionalType: string;
+        identifier?: string;
+        additionalType?: string;
         name?: string;
+        description?: string;
         bestRating: number;
         worstRating: number;
     }
-    export type RatingTemplate = RatingCommonType & {
-        type: 'RatingTemplate';
+    export type RatingDefinition = RatingCommonType & {
+        type: 'RatingDefinition';
     }
 
     export type RatingType = RatingCommonType & {
@@ -114,7 +116,7 @@ declare namespace TrompaAnnotationComponents {
 
     export type AnnotationCEMotivation = {
         type: 'AnnotationCEMotivation';
-        identifier: string;
+        identifier?: string;
         creator: string;
         description: string;
         title: string;

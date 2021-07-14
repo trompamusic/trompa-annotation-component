@@ -7,7 +7,7 @@ import {ApolloClient, gql} from "@apollo/client";
 import jwt_decode from "jwt-decode";
 
 // For saying that a Rating is just a definition
-export const RATING_DEFINITION_ADDITIONAL_TYPE = "https://vocab.trompamusic.eu/vocab#RatingDefinition"
+export const ADDITIONAL_TYPE_RATING_DEFINITION = "https://vocab.trompamusic.eu/vocab#RatingDefinition"
 // For making DefinedTerms that are a collection of tags
 export const ADDITIONAL_TYPE_TAG_COLLECTION = "https://vocab.trompamusic.eu/vocab#TagCollection"
 export const ADDITIONAL_TYPE_TAG_COLLECTION_ELEMENT = "https://vocab.trompamusic.eu/vocab#TagCollectionElement"
@@ -19,6 +19,10 @@ export const ADDITIONAL_TYPE_ANNOTATION_TOOLKIT = "https://vocab.trompamusic.eu/
 // For saying that an ItemList is an annotation session
 export const ADDITIONAL_TYPE_ANNOTATION_SESSION = "https://vocab.trompamusic.eu/vocab#AnnotationSession"
 export const OA_ANNOTATION_MOTIVATION_TYPE = "http://www.w3.org/ns/oa#Motivation"
+
+export class TrompaError extends Error {
+
+}
 
 export default class TrompaClient {
     apolloClient: ApolloClient<any>;
@@ -32,10 +36,17 @@ export default class TrompaClient {
 
     getApiToken = async () => {
         if (this.apiTokenExpired()) {
-            const result = await fetch(this.authProxyUrl);
-            const j = await result.json();
-            localStorage.setItem('CEAuthToken', j.token);
+            return fetch(this.authProxyUrl).then(result => result.json()).then(token => {
+                localStorage.setItem('CEAuthToken', token.token);
+                console.debug("token true")
+                return true;
+            }).catch(() => {
+                console.error("token false")
+                return false;
+            });
         }
+        console.debug("not expired, true!")
+        return true;
     }
 
     apiTokenExpired = (): boolean => {
@@ -178,16 +189,72 @@ export default class TrompaClient {
         this.apolloClient.query({query: GetAnnotationToolkitForItem, variables: {itemId: itemId}})
     }
 
-    createOrUpdateDefinedTerm = (definedTerm: TrompaAnnotationComponents.DefinedTerm) => {
-
+    deleteDefinedTerm = async (definedTermSetIdentifier: string, definedTermIdentifier: string) => {
+        if (!await this.getApiToken()) {
+            throw new TrompaError("whew")
+        } else {
+            return await this.apolloClient.mutate({
+                mutation: DeleteDefinedTerm,
+                variables: {identifier: definedTermIdentifier}})
+        }
     }
 
-    createOrUpdateDefinedTermSet = (definedTerm: TrompaAnnotationComponents.DefinedTermSet) => {
-
+    deleteDefinedTermSet = async (identifier: string) => {
+        if (!await this.getApiToken()) {
+            throw new TrompaError("whew")
+        } else {
+            return await this.apolloClient.mutate({
+                mutation: DeleteDefinedTermSet,
+                variables: {identifier}})
+        }
     }
 
-    getDefinedTermSetsForUser = (user: string, additionalType: string) => {
+    createOrUpdateDefinedTerm = async (dtsIdentifier: string, definedTerm: TrompaAnnotationComponents.DefinedTerm) => {
+        if (!await this.getApiToken()) {
+            throw new TrompaError("whew")
+        } else {
+            const response = await this.apolloClient.mutate({
+                mutation: CreateDefinedTerm,
+                variables: {
+                    creator: definedTerm.creator,
+                    termCode: definedTerm.termCode,
+                    additionalType: definedTerm.additionalType
+                }
+            })
+            await this.apolloClient.mutate({
+                mutation: MergeDefinedTermSetHasDefinedTerm,
+                variables: {
+                    dtsId: dtsIdentifier,
+                    dtId: response.data.CreateDefinedTerm.identifier
+                }
+            })
+            return {data: response.data.CreateDefinedTerm}
+        }
+    }
 
+    createOrUpdateDefinedTermSet = async (definedTermSet: TrompaAnnotationComponents.DefinedTermSet) => {
+        if (!await this.getApiToken()) {
+            throw new TrompaError("whew")
+        } else {
+            return await this.apolloClient.mutate({
+                mutation: CreateDefinedTermSet,
+                variables: {
+                    creator: definedTermSet.creator,
+                    name: definedTermSet.name,
+                    additionalType: definedTermSet.additionalType
+                }
+            })
+        }
+    }
+
+    getDefinedTermSetsForUser = async (user: string, additionalType: string) => {
+        if (!await this.getApiToken()) {
+            throw new TrompaError("whew")
+        } else {
+            return await this.apolloClient.query({
+                query: QueryDefinedTermSetForUser,
+                variables: {creator: user, additionalType: additionalType}})
+        }
     }
 
     getAnnotationPaletteForUser = (user: string) => {
@@ -283,12 +350,12 @@ export default class TrompaClient {
             // TODO: this might be an array??
             customMotivation = ceannotation.motivationUrl[0];
         } else if (ceannotation.motivationDefinedTerm) {
+            // TODO: read DefinedTermSet broaderUrl/broaderMotivation
             const definedTerm = ceannotation.motivationDefinedTerm;
             customMotivation = {
                 type: 'DefinedTerm', identifier: definedTerm.identifier,
                 creator: definedTerm.creator, additionalType: definedTerm.additionalType,
-                termCode: definedTerm.termCode, broaderUrl: definedTerm.broaderUrl,
-                broaderMotivation: definedTerm.broaderMotivation
+                termCode: definedTerm.termCode
             }
         } else if (ceannotation.motivationNode && ceannotation.motivationNode.length > 0) {
             const ceMotivation = ceannotation.motivationNode[0]
@@ -333,7 +400,100 @@ export default class TrompaClient {
                 throw new TypeError("Not known type")
         }
     }
+
+    getThingById = async (id: string) => {
+        await this.getApiToken();
+        return await this.apolloClient.query({
+            query: GetThingInterfaceById,
+            variables: {id: id}})
+    }
+
+    getRatingDefinitionsForUser = async (user: string) => {
+        if (!await this.getApiToken()) {
+            throw new TrompaError("whew")
+        } else {
+            return await this.apolloClient.query({
+                query: GetRatingDefinitionsForUser,
+                variables: {creator: user}})
+        }
+    }
+
+    createRatingDefinition = async (ratingDefinition: TrompaAnnotationComponents.RatingDefinition) => {
+        if (!await this.getApiToken()) {
+            throw new TrompaError("whew")
+        } else {
+            return await this.apolloClient.mutate({
+                mutation: CreateRating,
+                variables: {name: ratingDefinition.name, creator: ratingDefinition.creator,
+                bestRating: ratingDefinition.bestRating, worstRating: ratingDefinition.worstRating,
+                additionalType: ADDITIONAL_TYPE_RATING_DEFINITION, description: ratingDefinition.description}})
+        }
+    }
+
+    deleteRating = async (ratingIdentifier: string) => {
+        if (!await this.getApiToken()) {
+            throw new TrompaError("whew")
+        } else {
+            return await this.apolloClient.mutate({
+                mutation: DeleteRating,
+                variables: {identifier: ratingIdentifier}})
+        }
+    }
+
+    createMotivation = async (motivation: TrompaAnnotationComponents.AnnotationCEMotivation) => {
+        if (!await this.getApiToken()) {
+            throw new TrompaError("whew")
+        } else {
+            return await this.apolloClient.mutate({
+                mutation: CreateAnnotationCEMotivation,
+                variables: {
+                    title: motivation.title,
+                    creator: motivation.creator,
+                    description: motivation.description,
+                    broaderUrl: motivation.broaderUrl,
+                    broaderMotivation: motivation.broaderMotivation
+                }})
+        }
+    }
+
+    deleteMotivation = async (identifier: string) => {
+        if (!await this.getApiToken()) {
+            throw new TrompaError("whew")
+        } else {
+            return await this.apolloClient.mutate({
+                mutation: DeleteAnnotationCEMotivation,
+                variables: {identifier: identifier}})
+        }
+    }
+
+    getMotivationsForUser = async (user: string) => {
+        if (!await this.getApiToken()) {
+            throw new TrompaError("whew")
+        } else {
+            return await this.apolloClient.query({
+                query: GetAnnotationCEMotivationsForUser,
+                variables: {creator: user}})
+        }
+    }
 }
+
+const GetThingInterfaceById = gql`
+    query ThingInterface($id: ID!) {
+        ThingInterface(identifier: $id) {
+            __typename
+            identifier
+            source
+            name
+            title
+            ... on MediaObjectInterface {
+                contentUrl
+            }
+            ... on AudioObject {
+                contentUrl
+            }
+        }
+    }
+`;
 
 export const DefinedTermFragment = gql`
     fragment DefinedTermFragment on DefinedTerm {
@@ -341,8 +501,6 @@ export const DefinedTermFragment = gql`
         additionalType
         termCode
         image
-        broaderUrl
-        broaderMotivation
     }
 `;
 
@@ -354,6 +512,8 @@ export const DefinedTermSetFragment = gql`
         name
         creator
         additionalType
+        broaderUrl
+        broaderMotivation
         hasDefinedTerm {
             ...DefinedTermFragment
         }
@@ -404,6 +564,10 @@ export const CreateDefinedTerm = gql`
             image: $image
         ) {
             identifier
+            additionalType
+            creator
+            termCode
+            image
         }
     }
 `;
@@ -431,10 +595,10 @@ export const DeleteDefinedTerm = gql`
 `;
 
 export const MergeDefinedTermSetHasDefinedTerm = gql`
-    mutation MergeDefinedTermSetHasDefinedTerm($fromId: ID!, $toId: ID!) {
+    mutation MergeDefinedTermSetHasDefinedTerm($dtsId: ID!, $dtId: ID!) {
         MergeDefinedTermSetHasDefinedTerm(
-            from: {identifier: $fromId}
-            to: {identifier: $toId}
+            from: {identifier: $dtsId}
+            to: {identifier: $dtId}
         ) {
             from {
                 identifier
@@ -671,6 +835,98 @@ const GetAnnotationToolkitForItem = gql`
                     }
                 }
             }
+        }
+    }
+`;
+
+const GetRatingDefinitionsForUser = gql`
+    query RatingDefinitionsForUser($creator: String!) {
+        Rating(creator: $creator, filter: {additionalType_contains: ["${ADDITIONAL_TYPE_RATING_DEFINITION}"]}) {
+            identifier
+            creator
+            additionalType
+            name
+            description
+            bestRating
+            worstRating
+        }
+    }
+`;
+
+const DeleteRating = gql`
+    mutation DeleteRating($identifier: ID!) {
+        DeleteRating(identifier: $identifier) {
+            identifier
+        }
+    }
+`;
+
+const CreateRating = gql`
+    mutation CreateRating($name: String!, $creator: String!, $bestRating: Int!, $worstRating: Int!, 
+        $ratingValue: Int, $additionalType: String!, $description: String
+    ) {
+        CreateRating(
+            creator: $creator
+            name: $name
+            bestRating: $bestRating
+            worstRating: $worstRating
+            additionalType: [$additionalType]
+            description: $description
+            ratingValue: $ratingValue
+        ) {
+            identifier
+            creator
+            name
+            description
+            bestRating
+            worstRating
+            ratingValue
+            additionalType
+        }
+    }
+`;
+
+
+const GetAnnotationCEMotivationsForUser = gql`
+    query AnnotationCEMotivationForUser($creator: String!) {
+        AnnotationCEMotivation(creator: $creator) {
+            identifier
+            creator
+            created {formatted}
+            title
+            description
+            broaderUrl
+            broaderMotivation
+        }
+    }
+`;
+
+const DeleteAnnotationCEMotivation = gql`
+    mutation AnnotationCEMotivation($identifier: ID!) {
+        DeleteAnnotationCEMotivation(identifier: $identifier) {
+            identifier
+        }
+    }
+`;
+
+const CreateAnnotationCEMotivation = gql`
+    mutation CreateAnnotationCEMotivation($title: String!, $creator: String!, $description: String,
+        $broaderUrl: String, $broaderMotivation: AnnotationMotivation
+    ) {
+        CreateAnnotationCEMotivation(
+            creator: $creator
+            title: $title
+            description: $description
+            broaderUrl: $broaderUrl
+            broaderMotivation: $broaderMotivation
+        ) {
+            identifier
+            creator
+            created {formatted}
+            title
+            description
+            broaderUrl
+            broaderMotivation
         }
     }
 `;

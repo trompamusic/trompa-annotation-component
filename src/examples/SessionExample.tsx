@@ -3,11 +3,11 @@ import {Col, Row} from "react-bootstrap-v5";
 import {ApolloClient, createHttpLink, InMemoryCache} from '@apollo/client';
 import {setContext} from "@apollo/client/link/context";
 import {useSession} from "@inrupt/solid-ui-react";
-import MultiModalComponent, { SearchConfig, searchTypes } from 'trompa-multimodal-component';
+import MultiModalComponent, {SearchConfig, searchTypes} from 'trompa-multimodal-component';
 
 import Annotator from './Annotator';
-import {AudioSelector, AudioObject, TrompaClient, SolidClient} from "../index";
-import {CE_URL, AUTH_PROXY_URL} from "./Config";
+import {AudioObject, AudioSelector, SolidClient, TrompaClient} from "../index";
+import {AUTH_PROXY_URL, CE_URL} from "./Config";
 
 const searchConfig = new SearchConfig({
     searchTypes: [searchTypes.DigitalDocument, AudioObject],
@@ -40,7 +40,7 @@ const solidClient = new SolidClient();
 
 const containerInSolidPod = "/public/" // TODO make user configurable
 
-function SessionExample() {
+function SessionExample(props: {trompaClient: TrompaClient}) {
     const {session} = useSession();
     const userId = session.info.webId;
     const [resource, setResource] = useState<TrompaAnnotationComponents.Resource>();
@@ -62,7 +62,7 @@ function SessionExample() {
                                     <Col>
                                     If you know the ID of the resource:
                                     <AudioSelector
-                                        apolloClient={client}
+                                        trompaClient={props.trompaClient}
                                         onSelect={(node: any) => {console.log('User loaded resource:', node); setResource(node); setShowSearch(false);}}
                                     />
                                     </Col>
