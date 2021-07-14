@@ -118,7 +118,7 @@ declare namespace TrompaAnnotationComponents {
 
     export type AnnotationCEMotivation = {
         type: 'AnnotationCEMotivation';
-        identifier: string;
+        identifier?: string;
         creator: string;
         description: string;
         title: string;

@@ -293,6 +293,42 @@ export default class TrompaClient {
                 variables: {identifier: ratingIdentifier}})
         }
     }
+
+    createMotivation = async (motivation: TrompaAnnotationComponents.AnnotationCEMotivation) => {
+        if (!await this.getApiToken()) {
+            throw new TrompaError("whew")
+        } else {
+            return await this.apolloClient.mutate({
+                mutation: CreateAnnotationCEMotivation,
+                variables: {
+                    title: motivation.title,
+                    creator: motivation.creator,
+                    description: motivation.description,
+                    broaderUrl: motivation.broaderUrl,
+                    broaderMotivation: motivation.broaderMotivation
+                }})
+        }
+    }
+
+    deleteMotivation = async (identifier: string) => {
+        if (!await this.getApiToken()) {
+            throw new TrompaError("whew")
+        } else {
+            return await this.apolloClient.mutate({
+                mutation: DeleteAnnotationCEMotivation,
+                variables: {identifier: identifier}})
+        }
+    }
+
+    getMotivationsForUser = async (user: string) => {
+        if (!await this.getApiToken()) {
+            throw new TrompaError("whew")
+        } else {
+            return await this.apolloClient.query({
+                query: GetAnnotationCEMotivationsForUser,
+                variables: {creator: user}})
+        }
+    }
 }
 
 const GetThingInterfaceById = gql`
@@ -700,6 +736,51 @@ const CreateRating = gql`
             worstRating
             ratingValue
             additionalType
+        }
+    }
+`;
+
+
+const GetAnnotationCEMotivationsForUser = gql`
+    query AnnotationCEMotivationForUser($creator: String!) {
+        AnnotationCEMotivation(creator: $creator) {
+            identifier
+            creator
+            created {formatted}
+            title
+            description
+            broaderUrl
+            broaderMotivation
+        }
+    }
+`;
+
+const DeleteAnnotationCEMotivation = gql`
+    mutation AnnotationCEMotivation($identifier: ID!) {
+        DeleteAnnotationCEMotivation(identifier: $identifier) {
+            identifier
+        }
+    }
+`;
+
+const CreateAnnotationCEMotivation = gql`
+    mutation CreateAnnotationCEMotivation($title: String!, $creator: String!, $description: String,
+        $broaderUrl: String, $broaderMotivation: AnnotationMotivation
+    ) {
+        CreateAnnotationCEMotivation(
+            creator: $creator
+            title: $title
+            description: $description
+            broaderUrl: $broaderUrl
+            broaderMotivation: $broaderMotivation
+        ) {
+            identifier
+            creator
+            created {formatted}
+            title
+            description
+            broaderUrl
+            broaderMotivation
         }
     }
 `;
