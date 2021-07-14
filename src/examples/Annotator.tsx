@@ -163,10 +163,9 @@ class Annotator extends Component<AnnotatorProps, AnnotatorState> {
 
         /*this.props.trompaClient.saveAnnotation(annotation);*/
         const solidAnnotation = toSolid(annotation, this.props.resource);
-        console.debug("Solid Client: ", this.props.solidClient)
         this.props.solidClient.saveAnnotation(solidAnnotation, this.props.solidSession, this.props.container)
             .then((resp:any) => {
-                this.props.solidClient.fetchAnnotations(new URL(new URL(this.props.solidSession.info!.webId!).origin + "/public/"), this.props.solidSession, {})
+                this.props.solidClient.fetchAnnotations(new URL(new URL(this.props.solidSession.info!.webId!).origin + this.props.container), this.props.solidSession, {})
                     .then((annos:any[]) => {
                         console.debug("Fetched annotations: ", annos)
                         annos.forEach(a => this.props.solidClient.revokePublicReadable(new URL(a["@id"]), this.props.solidSession))
