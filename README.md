@@ -3,35 +3,12 @@
 This project contains javascript tools for performing annotations on audio files within the context of
 the TROMPA project
 
-## Available Scripts
-
-In the project directory, you can run:
-
-### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-
 ## Development
 
-### Test data
+### Setup
 
-For development purposes, you will need a copy of the [Contributor Environment](https://github.com/trompamusic/ce-api) 
-installed.
+The demo included in this project requires a copy of the 
+[TROMPA Contributor Environment](https://github.com/trompamusic/ce-api/) (CE).
 
 To install, clone and start it using docker:
 
@@ -42,7 +19,7 @@ To install, clone and start it using docker:
 
 The CE runs at http://localhost:4000
 
-We provide a small test dataset for loading audio. Use the provided importer:
+We provide a small test dataset for loading some demo audio items to the CE. Use the provided importer:
 
     cd ce-auth-proxy
     python -m venv env
@@ -50,6 +27,17 @@ We provide a small test dataset for loading audio. Use the provided importer:
     pip install -r requirements.txt
 
     FLASK_APP=authproxy.py flask import-test-data ../sample_audio_nodes.graphql
+
+### Annotation component setup
+
+Edit the file `src/index.tsx` and uncomment the line
+
+    import "./examples/App";
+
+Install node dependencies and start the development server:
+
+    npm install
+    npm start
 
 ### Token auth server
 
