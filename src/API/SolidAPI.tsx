@@ -32,7 +32,7 @@ export interface SolidAnnotation{
     target: URL | URL[];
     motivation?: AnnotationMotivationType | URL;
     // body?: URL | string | SolidTextualBody | (URL | string | SolidTextualBody)[] ; //TODO verify
-    body?: AnnotationExternalWebResource | AnnotationTextualBody | URL | ( AnnotationExternalWebResource | AnnotationTextualBody | URL)[]
+    body?: AnnotationExternalWebResource | AnnotationTextualBody | URL | ( AnnotationExternalWebResource | AnnotationTextualBody | URL)[];
 }
 
 export default class SolidClient {
@@ -93,18 +93,8 @@ export default class SolidClient {
         })
     }
 
-    saveAnnotation = async (annotation: SolidAnnotation, session:any, container: string) => { //FIXME change session type to appropriate "@inrupt" type
-        let toSolid:any;
-        toSolid = new Object;
-        // convert URL objects to strings
-        if(!Array.isArray(annotation.target)) {
-            annotation.target = [annotation.target]
-        }
-        toSolid.target = annotation.target.map((t) => t.toString())
-        if(toSolid.target.length === 1) {
-            toSolid.target = toSolid.target[0];
-        }
-        console.debug("After target translation, toSolid is", toSolid);
+    saveAnnotation = async (annotation: object, session:any, container: string) => { //FIXME change session type to appropriate "@inrupt" type
+        //FIXME annotation no longer of type SolidAnnotation; revise that interface, or fall back to 'object' like now if acceptable.
         let profileDocUri = session.info!.webId!.split("#")[0];
         const profileDataset = await getSolidDataset(profileDocUri, { fetch: session.fetch});
         const profile = getThing(profileDataset, session.info!.webId!);
@@ -123,13 +113,13 @@ export default class SolidClient {
         }
 
         if("@id" in annotation) {
-            toSolid["@id"] = annotation["@id"]!.toString()
+            annotation["@id"] = annotation["@id"]!.toString()
         } else {
-            toSolid["@id"] = postUrl.origin + container + uuidv4().toString() + ".jsonld";
+            annotation["@id"] = postUrl.origin + container + uuidv4().toString() + ".jsonld";
         }
-        toSolid["@context"] = "http://www.w3.org/ns/anno.jsonld";
-        toSolid["@type"] = "Annotation";
-        return this.solidRESTInteraction(postUrl, httpVerb.POST, session, {}, toSolid);
+        annotation["@context"] = "http://www.w3.org/ns/anno.jsonld";
+        annotation["@type"] = "Annotation";
+        return this.solidRESTInteraction(postUrl, httpVerb.POST, session, {}, annotation);
     }
 
     deleteAnnotation = async (annotationUrl: URL, session: any) => { //FIXME change session type to appropriate "@inrupt" type
