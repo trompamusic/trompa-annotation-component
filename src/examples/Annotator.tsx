@@ -13,7 +13,6 @@ import fakeAnnotationToolkit from '../API/testdata/fake-annotation-toolkit.json'
 import {CE_URL} from "./Config";
 import {startAndEndFromAnnotation} from "../utils";
 import {AnnotationExternalWebResource, AnnotationTarget, AnnotationTextualBody} from "../annotations/Annotation";
-import {toSolid} from "../utils";
 
 const {timeToPrecision, annotationToWaveSurferRegion, extractNameFromCreatorURI, contentUrlOrSource} = utilities;
 
@@ -162,7 +161,7 @@ class Annotator extends Component<AnnotatorProps, AnnotatorState> {
         }
 
         /*this.props.trompaClient.saveAnnotation(annotation);*/
-        const solidAnnotation = toSolid(annotation, this.props.resource);
+        const solidAnnotation = annotation.toJSONLD(this.props.resource);
         this.props.solidClient.saveAnnotation(solidAnnotation, this.props.solidSession, this.props.container)
             .then((resp:any) => {
                 this.props.solidClient.fetchAnnotations(new URL(new URL(this.props.solidSession.info!.webId!).origin + this.props.container), this.props.solidSession, {})

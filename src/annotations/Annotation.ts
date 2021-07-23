@@ -1,5 +1,75 @@
 import {startAndEndFromAnnotation} from "../utils";
 
+const dataModelItemToJSONLD = (dataModelItem:object|string|number, resource?: TrompaAnnotationComponents.Resource): object|string|number => {
+    // TODO check whether this.id is a http-wrapper URL or just a UUID; if the latter, translate to the former here.
+    if(typeof dataModelItem === 'string' || typeof dataModelItem === 'number') {
+        return dataModelItem;
+    }
+    let jsonldRepresentation:object|string|number;
+    if(dataModelItem instanceof AnnotationTarget) {
+        jsonldRepresentation = dataModelItem.toJSONLD();
+    } else if(Array.isArray(dataModelItem)) {
+        jsonldRepresentation = dataModelItem.map((item:string|number|object) => {
+            return dataModelItemToJSONLD(item);
+        })
+    } else {
+        jsonldRepresentation = {};
+        Object.keys(dataModelItem).forEach((k) => {
+            if(dataModelItem[k]) { // skip undefined values
+                jsonldRepresentation[k] = dataModelItemToJSONLD(dataModelItem[k])
+            }
+        });
+    }
+    // convert targets
+    if(typeof jsonldRepresentation === 'object' && 'target' in jsonldRepresentation) {
+        if (!(Array.isArray(jsonldRepresentation['target']))) {
+            jsonldRepresentation['target'] = [jsonldRepresentation['target']]
+        }
+        jsonldRepresentation['target'] = jsonldRepresentation['target'].map((t:object|string) => {
+            let translatedTarget;
+            if (typeof t === "object") {
+                if(resource) {
+                    translatedTarget = targetObjectWithResourceToUrlString(t, resource);
+                } else {
+                    console.error("Missing resource for target: ", t, " for annotation object: ", dataModelItem)
+                    translatedTarget = t.toString();
+                }
+            } else  {
+                translatedTarget = t;
+            }
+            return translatedTarget;
+        })
+    }
+    return jsonldRepresentation;
+}
+
+const targetObjectWithResourceToUrlString = (target:object, resource: TrompaAnnotationComponents.Resource):string => {
+    // figure out the url: if fieldName is set, use the value of that field of the Resource
+    let targetUrl: string;
+    if("fieldName" in target) {
+        targetUrl = resource[target['fieldName']];
+    } else {
+        // ... otherwise use the url field
+        if (!(target instanceof AnnotationTarget)) {
+            targetUrl = target['url'];
+        } else {
+            console.error("GOT UNDEFINED TARGET")
+            targetUrl = "UNDEFINED FOR AnnotationTarget" // FIXME either handle this case if relevant, or use a 'never' type
+        }
+    }
+    // figure out the fragment if one exists
+    if("fragment" in target) {
+        target = new URL(`${targetUrl}#${target['fragment']}`);
+    } else if("start" in target && "end" in target) {
+        target = new URL(`${targetUrl}?t=${target['start']},${target['end']}`)
+    }
+    else {
+        // no fragment
+        target = new URL(targetUrl)
+    }
+    return target.toString();
+}
+
 export enum AnnotationMotivation {
     COMMENTING = "commenting", // freeform long text
     DESCRIBING = "describing", // freeform long text
@@ -52,6 +122,7 @@ export class AnnotationExternalWebResource {
         this.textDirection = params.textDirection;
         this.type = params.type;
     }
+    toJSONLD() { return dataModelItemToJSONLD(this) };
 }
 
 export class AnnotationTextualBody extends AnnotationExternalWebResource {
@@ -62,6 +133,7 @@ export class AnnotationTextualBody extends AnnotationExternalWebResource {
         super({...params, type: AnnotationType.TextualBody});
         this.value = params.value;
     }
+    toJSONLD() { return dataModelItemToJSONLD(this) };
 }
 
 export class AnnotationTarget extends AnnotationExternalWebResource {
@@ -159,6 +231,15 @@ export class AnnotationTarget extends AnnotationExternalWebResource {
             return `t=${start}`;
         }
     }
+    toJSONLD() {
+        console.log("case: TARGET")
+        let targetUri = this.id;
+        const frag = this.fragment;
+        if(frag) {
+            targetUri += "#" + frag;
+        }
+        return targetUri;
+    }
 }
 
 export default class Annotation {
@@ -198,6 +279,8 @@ export default class Annotation {
         this.via = params.via;
         // TODO: Requires at least 1 target
     }
+
+    toJSONLD(resource: TrompaAnnotationComponents.Resource) { return dataModelItemToJSONLD(this, resource) };
 
     get timeFragmentType(): TimeFragmentType | string {
         const [start, end] = startAndEndFromAnnotation(this);
