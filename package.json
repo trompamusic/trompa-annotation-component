@@ -45,7 +45,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build-react-scripts": "react-scripts build",
-    "build": "tsc --noEmit false",
+    "build": "tsc --noEmit false && copyfiles -u 1 src/**/*.css dist",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "clean": "rm -rf ./dist",
@@ -74,9 +74,10 @@
     "@types/jsonld": "^1.5.5",
     "@types/lodash.throttle": "^4.1.6",
     "@types/react-router-dom": "^5.1.7",
-    "@types/solid__react": "^1.6.3",
     "@types/solid-auth-client": "^2.4.0",
+    "@types/solid__react": "^1.6.3",
     "@types/ungap__global-this": "^0.3.1",
-    "@types/wavesurfer.js": "^4.6.0"
+    "@types/wavesurfer.js": "^4.6.0",
+    "copyfiles": "^2.4.1"
   }
 }
