@@ -99,7 +99,12 @@ export default class SolidClient {
         const profileDataset = await getSolidDataset(profileDocUri, { fetch: session.fetch});
         const profile = getThing(profileDataset, session.info!.webId!);
         let postUrl:URL;
-        if(profile) {
+
+        if (!container.startsWith('/')) {
+            container = '/' + container;
+        }
+
+        if (profile) {
             const podUrl = getUrl(profile, WS.storage);
             if(podUrl) {
                 postUrl = new URL(new URL(podUrl).origin + container);
