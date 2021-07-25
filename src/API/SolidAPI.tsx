@@ -157,8 +157,14 @@ export default class SolidClient {
             return Promise.all(readerPromises).then((dataAllResponses) => {
                 return dataAllResponses.map((data) => {
                     const decoded = new TextDecoder("utf-8").decode(data.value);
-                    return JSON.parse(decoded);
-                })
+                    try {
+                        return JSON.parse(decoded);
+                    } catch {
+                        console.error("Error parsing json document, skipping");
+                        console.log(decoded);
+                        return null;
+                    }
+                }).filter(d => d !== null)
             });
         })
         const filtered = annotations.filter((anno) => {
