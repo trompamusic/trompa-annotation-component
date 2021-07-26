@@ -10,6 +10,7 @@ import {
     getThing,
     getContainedResourceUrlAll,
 } from "@inrupt/solid-client";
+import {Session} from "@inrupt/solid-client-authn-browser"
 
 import {WS} from "@inrupt/vocab-solid-common";
 import {v4 as uuidv4} from "uuid";
@@ -36,7 +37,12 @@ export interface SolidAnnotation{
 }
 
 export default class SolidClient {
-    solidRESTInteraction = async(url: URL, method: httpVerbType, session:any, headers: object, payload: object|null) => { //FIXME change session type to appropriate "@inrupt" type, and consider "headers" type
+    session: any; // TODO type should be Session, but that requires better typing for headers
+    constructor(session:Session) {
+        this.session = session;
+    }
+
+    solidRESTInteraction = async(url: URL, method: httpVerbType, headers: object, payload: object|null) => { //FIXME consider "headers" type
         headers["content-type"] = "application/ld+json";
         headers["accept"] = "application/ld+json";
         // if POSTing ensure a payload exists and an "@id" is set
@@ -55,7 +61,7 @@ export default class SolidClient {
         }
         let fetchOptions = {method, headers};
         if(payload) { fetchOptions["body"] = JSON.stringify(payload) };
-        return session.fetch!(url.toString(), fetchOptions)
+        return this.session.fetch!(url.toString(), fetchOptions)
             .then((response:any) => {
                 return response;
             })
@@ -65,11 +71,11 @@ export default class SolidClient {
             })
     }
 
-    grantPublicReadable = async(resourceUri: URL, session: any)  => {
+    grantPublicReadable = async(resourceUri: URL)  => {
         access.setPublicAccess(
             resourceUri.toString(),
             {read: true, write: false},
-            {fetch: session.fetch}
+            {fetch: this.session.fetch}
         ).then(newAccess => {
             if(newAccess === null) {
                 console.warn("Could not load access details for resource at ", resourceUri.toString())
@@ -79,11 +85,11 @@ export default class SolidClient {
         })
     }
 
-    revokePublicReadable = async(resourceUri: URL, session: any)  => {
+    revokePublicReadable = async(resourceUri: URL)  => {
         access.setPublicAccess(
             resourceUri.toString(),
             {read: false, write: false},
-            {fetch: session.fetch}
+            {fetch: this.session.fetch}
         ).then(newAccess => {
             if(newAccess === null) {
                 console.warn("Could not load access details for resource at ", resourceUri.toString())
@@ -93,11 +99,11 @@ export default class SolidClient {
         })
     }
 
-    saveAnnotation = async (annotation: object, session:any, container: string) => { //FIXME change session type to appropriate "@inrupt" type
+    saveAnnotation = async (annotation: object, container: string) => {
         //FIXME annotation no longer of type SolidAnnotation; revise that interface, or fall back to 'object' like now if acceptable.
-        let profileDocUri = session.info!.webId!.split("#")[0];
-        const profileDataset = await getSolidDataset(profileDocUri, { fetch: session.fetch});
-        const profile = getThing(profileDataset, session.info!.webId!);
+        let profileDocUri = this.session.info!.webId!.split("#")[0];
+        const profileDataset = await getSolidDataset(profileDocUri, { fetch: this.session.fetch});
+        const profile = getThing(profileDataset, this.session.info!.webId!);
         let postUrl:URL;
 
         if (!container.startsWith('/')) {
@@ -110,11 +116,11 @@ export default class SolidClient {
                 postUrl = new URL(new URL(podUrl).origin + container);
             } else {
                 console.error("Could not determine POD URL from user's webId profile. Dangerously hacking it from webId URL instead!")
-                postUrl = new URL(new URL(session.info!.webId!).origin + container);
+                postUrl = new URL(new URL(this.session.info!.webId!).origin + container);
             }
         } else {
             console.error("Could not access user's profile. Dangerously hacking POD URL from webId URL instead!")
-            postUrl = new URL(new URL(session.info!.webId!).origin + container);
+            postUrl = new URL(new URL(this.session.info!.webId!).origin + container);
         }
 
         if("@id" in annotation) {
@@ -124,26 +130,25 @@ export default class SolidClient {
         }
         annotation["@context"] = "http://www.w3.org/ns/anno.jsonld";
         annotation["@type"] = "Annotation";
-        return this.solidRESTInteraction(postUrl, httpVerb.POST, session, {}, annotation);
+        return this.solidRESTInteraction(postUrl, httpVerb.POST, {}, annotation);
     }
 
-    deleteAnnotation = async (annotationUrl: URL, session: any) => { //FIXME change session type to appropriate "@inrupt" type
+    deleteAnnotation = async (annotationUrl: URL) => {
         console.debug("Trying to delete annotation at URL: ", annotationUrl.toString())
-        return this.solidRESTInteraction(annotationUrl, httpVerb.DELETE, session, {}, null);
+        return this.solidRESTInteraction(annotationUrl, httpVerb.DELETE, {}, null);
     }
 
-    fetchAnnotation = async (annotationUrl: URL, session: any)=> { //FIXME change session type to appropriate "@inrupt" type
+    fetchAnnotation = async (annotationUrl: URL)=> {
         console.debug("Trying to fetch annotation at URL: ", annotationUrl.toString())
-        return await this.solidRESTInteraction(annotationUrl, httpVerb.GET, session, {}, null);
+        return await this.solidRESTInteraction(annotationUrl, httpVerb.GET, {}, null);
     }
 
-    fetchAnnotations = async (containerUrl: URL, session: any, filter: object) => { //FIXME change session type to appropriate "@inrupt" type
-        const containerDataset = await getSolidDataset(containerUrl.toString(), { fetch: session.fetch});
+    fetchAnnotations = async (containerUrl: URL, filter: object) => {
+        const containerDataset = await getSolidDataset(containerUrl.toString(), { fetch: this.session.fetch});
         const annotationUrls = await getContainedResourceUrlAll(containerDataset);
-        //annotationUrls.forEach((urlString) => this.deleteAnnotation(new URL(urlString), session));
 
         const annotationPromises = annotationUrls.map((url) => {
-            return this.fetchAnnotation(new URL(url), session);
+            return this.fetchAnnotation(new URL(url));
         });
         const annotations = await Promise.all(annotationPromises).then((responses) => {
             // filter out responses with error status
