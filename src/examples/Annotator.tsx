@@ -162,12 +162,31 @@ class Annotator extends Component<AnnotatorProps, AnnotatorState> {
 
         /*this.props.trompaClient.saveAnnotation(annotation);*/
         const solidAnnotation = annotation.toJSONLD(this.props.resource);
-        this.props.solidClient.saveAnnotation(solidAnnotation, this.props.solidSession, this.props.container)
+        this.props.solidClient.saveAnnotation(solidAnnotation, this.props.container)
             .then((resp:any) => {
-                this.props.solidClient.fetchAnnotations(new URL(new URL(this.props.solidSession.info!.webId!).origin + this.props.container), this.props.solidSession, {})
+                this.props.solidClient.fetchAnnotations(new URL(new URL(this.props.solidSession.info!.webId!).origin + this.props.container), {})
                     .then((annos:any[]) => {
                         console.debug("Fetched annotations: ", annos)
-                        annos.forEach(a => this.props.solidClient.revokePublicReadable(new URL(a["@id"]), this.props.solidSession))
+                        annos.forEach(a => {
+                            let annoUri = a["@id"];
+                            const publicAccess = this.props.solidClient.isPublicReadable(annoUri);
+                            publicAccess.then((pubAcc:boolean) => {
+                                console.log("Public access for annotation ", annoUri, " is ", pubAcc);
+                                const userControl = this.props.solidClient.userControlsAccess(annoUri);
+                                userControl.then((usrCtrl:boolean) => {
+                                    console.log("User control for annotation ", annoUri, " is ", usrCtrl);
+                                    // if the user is able to, toggle the public readable state of the resource
+                                    if(usrCtrl) {
+                                        if(pubAcc) {
+                                            this.props.solidClient.revokePublicReadable(annoUri);
+                                        } else {
+                                            this.props.solidClient.grantPublicReadable(annoUri);
+                                        }
+                                    }
+
+                                })
+                            })
+                        })
                     })
                     // TODO do something with them!
 

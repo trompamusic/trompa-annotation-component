@@ -71,6 +71,30 @@ export default class SolidClient {
             })
     }
 
+    isPublicReadable = async (resourceUri: URL) => {
+        return await access.getPublicAccess(resourceUri.toString(), {fetch: this.session.fetch})
+            .then(access => {
+                if(access === null) {
+                    console.warn("Could not check whether the following resource is public readable. User may not have view access, or resource access may have been modified with incompatible Solid authn library.", resourceUri)
+                    return false;
+                } else {
+                    return access.read;
+                }
+            })
+    }
+
+    userControlsAccess = async (resourceUri: URL) => {
+        return await access.getAgentAccess(resourceUri.toString(), this.session.info.webId.toString(), {fetch:this.session.fetch})
+            .then(access => {
+                if(access === null) {
+                    console.warn("Could not check whether the user controls access over the following resource. Have you turned on 'Control' for this URI in the Solid Pod's trusted application preferences? Otherwise, resource access may have been modified with incompatible Solid authn library.", resourceUri)
+                    return false;
+                } else {
+                    return access.controlRead;
+                }
+            })
+    }
+
     grantPublicReadable = async(resourceUri: URL)  => {
         access.setPublicAccess(
             resourceUri.toString(),
@@ -105,7 +129,6 @@ export default class SolidClient {
         const profileDataset = await getSolidDataset(profileDocUri, { fetch: this.session.fetch});
         const profile = getThing(profileDataset, this.session.info!.webId!);
         let postUrl:URL;
-
         if (!container.startsWith('/')) {
             container = '/' + container;
         }

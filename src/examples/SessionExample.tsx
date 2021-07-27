@@ -36,12 +36,11 @@ const client = new ApolloClient({
 });
 
 const trompaClient = new TrompaClient(AUTH_PROXY_URL, client);
-const solidClient = new SolidClient();
-
 const containerInSolidPod = "/public/" // TODO make user configurable
 
 function SessionExample(props: {trompaClient: TrompaClient}) {
     const {session} = useSession();
+    const solidClient = new SolidClient(session);
     const userId = session.info.webId;
     const [resource, setResource] = useState<TrompaAnnotationComponents.Resource>();
     const [showSearch, setShowSearch] = useState(true);
