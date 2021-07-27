@@ -253,5 +253,4 @@ export class DefinedTermSetEditor extends Component<DefinedTermSetEditorProps, D
     }
 }
 
-
 export default DefinedTermSetEditorWithUser;
