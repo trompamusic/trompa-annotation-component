@@ -1,3 +1,4 @@
+import React from 'react';
 import {ListGroup} from 'react-bootstrap-v5';
 
 type TagsProps = {
@@ -37,9 +38,9 @@ export default function Tags(props: TagsProps) {
             {options.map(option => {
                 const {termCode, image} = option;
                 const isOptionSelected = Array.isArray(selected) && selected.includes(termCode);
-                return <ListGroup.Item action active={isOptionSelected}
+                return <ListGroup.Item key={termCode} action active={isOptionSelected}
                                        onClick={handleTagClick.bind(null, option, isOptionSelected)}>
-                    {image && <img className="me-2" src={image} alt={termCode}></img>}
+                    {image && <img className="me-2" src={image} alt={termCode} />}
                     {termCode}
                 </ListGroup.Item>
             })}

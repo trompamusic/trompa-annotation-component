@@ -1,4 +1,4 @@
-import {Component, ChangeEvent} from 'react';
+import React, {Component, ChangeEvent} from 'react';
 import {ProgressBar} from 'react-bootstrap-v5';
 import './Rating.css';
 
@@ -24,7 +24,7 @@ export default class Rating extends Component<RatingProps> {
             case "stars":
                 const filledStars: string[] = Array(ratingValue).fill('★');
                 const emptyStars: string[] = Array(ratingValue).fill('☆');
-                return <div style={{color: 'gold', fontSize: "1.4em;"}}>
+                return <div style={{color: 'gold', fontSize: "1.4em"}}>
                     {filledStars.join('')}{emptyStars.join('')}
                 </div>;
             case "range":

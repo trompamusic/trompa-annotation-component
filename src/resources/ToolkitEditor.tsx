@@ -1,7 +1,7 @@
-import React, {Component, useState} from "react";
-import {useWebId} from "@solid/react";
+import React, {Component} from "react";
 import TrompaClient from "../API/CEAPI";
-import {Route, Switch, useRouteMatch } from "react-router-dom";
+import {Route, Routes} from "react-router-dom";
+import {useSession} from "@inrupt/solid-ui-react";
 
 type ToolkitEditorWithUserProps = {
     trompaClient: TrompaClient;
@@ -13,23 +13,16 @@ type ToolkitEditorWithUserProps = {
  * @constructor
  */
 const ToolkitEditorWithUser = ({trompaClient}: ToolkitEditorWithUserProps) => {
-    const webId = useWebId();
-    let match = useRouteMatch();
+    const {session} = useSession();
 
-    if (!webId) {
+    if (!session.info.webId) {
         return <p>You need to log in to use the editor</p>
     }
-    return <Switch>
-        <Route path={`${match.path}/new`}>
-            <ToolkitEditor trompaClient={trompaClient} webId={webId}/>
-        </Route>
-        <Route path={`${match.path}/:toolkitId`}>
-            <ToolkitView />
-        </Route>
-        <Route path={match.path}>
-            <ToolkitList />
-        </Route>
-    </Switch>
+    return <Routes>
+        <Route path={`/new`} element={<ToolkitEditor trompaClient={trompaClient} webId={session.info.webId}/>}/>
+        <Route path={`$:toolkitId`} element={<ToolkitView />}/>
+        <Route path={`/`} element={<ToolkitList />} />
+    </Routes>
 }
 
 type ToolkitEditorProps = {

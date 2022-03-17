@@ -1,7 +1,7 @@
 import React, {Component, useState} from "react";
-import {useWebId} from "@solid/react";
 import TrompaClient from "../API/CEAPI";
 import {Button, Col, FormControl, FormGroup, FormLabel, FormSelect, ListGroup, Row} from "react-bootstrap-v5";
+import {useSession} from "@inrupt/solid-ui-react";
 
 type MotivationEditorWithUserProps = {
     trompaClient: TrompaClient;
@@ -13,11 +13,11 @@ type MotivationEditorWithUserProps = {
  * @constructor
  */
 const MotivationEditorWithUser = ({trompaClient}: MotivationEditorWithUserProps) => {
-    const webId = useWebId();
+    const {session} = useSession();
 
     return <div>
-        {webId && <MotivationEditor trompaClient={trompaClient} webId={webId}/>}
-        {!webId && <p>You need to log in to use the editor</p>}
+        {session.info.webId && <MotivationEditor trompaClient={trompaClient} webId={session.info.webId}/>}
+        {!session.info.webId && <p>You need to log in to use the editor</p>}
     </div>
 }
 
@@ -99,7 +99,7 @@ const NewMotivationInput = ({onSubmit}: {onSubmit: (motivation: NewMotivation) =
                 setBroaderMotivation(value)
                 setMotivationInvalid(false)}}>
                 <option value={DEFAULT_MOTIVATION}>{DEFAULT_MOTIVATION}</option>
-                {motivations.map(m => <option value={m}>{m}</option>)}
+                {motivations.map(m => <option key={m} value={m}>{m}</option>)}
             </FormSelect>
             <FormControl
                  placeholder="External Motivation URL"

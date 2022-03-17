@@ -1,4 +1,4 @@
-import {ApolloClient, gql} from '@apollo/client';
+import React from 'react';
 import {ChangeEvent, Component} from "react";
 import {Button, Col, Form, Row} from "react-bootstrap-v5";
 import TrompaClient from "../API/CEAPI";

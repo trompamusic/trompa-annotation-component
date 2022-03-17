@@ -1,12 +1,10 @@
-import React, {ChangeEvent, Component, FunctionComponent} from 'react';
+import React, {ChangeEvent, Component} from 'react';
 import {Button, Col, FormControl, InputGroup, ListGroup, Row} from 'react-bootstrap-v5';
-import {useWebId} from "@solid/react";
 import {
     ADDITIONAL_TYPE_TAG_COLLECTION, ADDITIONAL_TYPE_TAG_COLLECTION_ELEMENT,
-    CreateDefinedTermSet,
-    QueryDefinedTermSetForUser
 } from "../API/CEAPI";
 import {TrompaClient} from "../index";
+import {useSession} from "@inrupt/solid-ui-react";
 
 /**
  * Editor for:
@@ -42,11 +40,11 @@ type DefinedTermSetEditorWithUserProps = {
  * @constructor
  */
 const DefinedTermSetEditorWithUser = ({trompaClient}: DefinedTermSetEditorWithUserProps) => {
-    const webId = useWebId();
+    const {session} = useSession();
 
     return <div>
-        {webId && <DefinedTermSetEditor trompaClient={trompaClient} webId={webId}/>}
-        {!webId && <p>You need to log in to use the editor</p>}
+        {session.info.webId && <DefinedTermSetEditor trompaClient={trompaClient} webId={session.info.webId}/>}
+        {!session.info.webId && <p>You need to log in to use the editor</p>}
     </div>
 }
 

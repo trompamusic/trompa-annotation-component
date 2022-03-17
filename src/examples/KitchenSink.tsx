@@ -1,3 +1,4 @@
+import React from 'react';
 import {Row, Col, Container, Card} from 'react-bootstrap-v5';
 import TextArea from '../annotations/TextArea';
 import Tags from '../annotations/Tags';

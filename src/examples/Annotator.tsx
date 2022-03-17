@@ -1,12 +1,11 @@
 import React, {ChangeEvent, Component, FormEvent} from 'react';
 import {Form, Row, Col, Container, Button, Card} from 'react-bootstrap-v5';
-import {LDflexValue} from "@solid/react";
 
 // Annotation content components
 import {
     TextArea, Rating, Waveform, Annotation,
     AnnotationMotivation, TimeSelection, TimeFragmentType,
-    SessionViewer, TrompaClient, SolidClient, utilities
+    SessionViewer, TrompaClient, utilities
 } from '../index';
 
 import fakeAnnotationToolkit from '../API/testdata/fake-annotation-toolkit.json';
@@ -17,7 +16,7 @@ import {AnnotationExternalWebResource, AnnotationTarget, AnnotationTextualBody} 
 const {timeToPrecision, annotationToWaveSurferRegion, extractNameFromCreatorURI, contentUrlOrSource} = utilities;
 
 type AnnotatorProps = {
-    user: LDflexValue | undefined;
+    user: string | undefined;
     trompaClient: TrompaClient;
     solidClient: any;
     container: any;

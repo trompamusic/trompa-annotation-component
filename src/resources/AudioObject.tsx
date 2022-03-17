@@ -1,3 +1,4 @@
+import React from 'react';
 import {SearchResult} from 'trompa-multimodal-component';
 import {gql} from "@apollo/client";
 import {Function} from '@ungap/global-this';

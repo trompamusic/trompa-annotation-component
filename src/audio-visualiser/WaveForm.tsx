@@ -153,6 +153,7 @@ class Waveform extends Component<WaveformProps, WaveformState> {
             if (selectedRegion) {
                 const isPunctual = start === end;
                 selectedRegion.update({
+                    id,
                     start,
                     end,
                     resize: isPunctual ? false : true

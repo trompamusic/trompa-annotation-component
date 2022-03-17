@@ -1,6 +1,4 @@
 import Annotation, {AnnotationMotivation, AnnotationTarget} from "./annotations/Annotation";
-import {SolidAnnotation} from "./API/SolidAPI";
-type AnnotationCETarget = TrompaAnnotationComponents.AnnotationCETarget;
 
 
 export function randomColor(alpha: number) {

@@ -1,7 +1,7 @@
 import React, {Component, useState} from "react";
-import {useWebId} from "@solid/react";
 import TrompaClient from "../API/CEAPI";
 import {Button, Col, FormControl, FormGroup, ListGroup, Row} from "react-bootstrap-v5";
+import {useSession} from "@inrupt/solid-ui-react";
 
 type RatingEditorWithUserProps = {
     trompaClient: TrompaClient;
@@ -13,11 +13,11 @@ type RatingEditorWithUserProps = {
  * @constructor
  */
 const RatingEditorWithUser = ({trompaClient}: RatingEditorWithUserProps) => {
-    const webId = useWebId();
+    const {session} = useSession();
 
     return <div>
-        {webId && <RatingEditor trompaClient={trompaClient} webId={webId}/>}
-        {!webId && <p>You need to log in to use the editor</p>}
+        {session.info.webId && <RatingEditor trompaClient={trompaClient} webId={session.info.webId}/>}
+        {!session.info.webId && <p>You need to log in to use the editor</p>}
     </div>
 }
 

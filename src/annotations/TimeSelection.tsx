@@ -1,4 +1,4 @@
-import React, {ChangeEvent, useState} from "react";
+import React, {ChangeEvent} from "react";
 import {ButtonGroup, ToggleButton, Form, Row, Col} from 'react-bootstrap-v5';
 import {TimeFragmentType} from "./Annotation";
 

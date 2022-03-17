@@ -9,7 +9,7 @@ import {AUTH_PROXY_URL, CE_URL} from "./Config";
 import {Container} from "react-bootstrap-v5";
 import {
     BrowserRouter as Router,
-    Switch,
+    Routes,
     Route
 } from "react-router-dom";
 import {ApolloClient, ApolloProvider, createHttpLink, InMemoryCache} from '@apollo/client';
@@ -59,29 +59,17 @@ function App() {
     return (
         <Router>
             <ApolloProvider client={client}>
-                <SessionProvider sessionId="trompa-annotation-component-app">
+                <SessionProvider>
                     <Navigation/>
                     <Container fluid="lg">
-                        <Switch>
-                            <Route exact path="/">
-                                <SessionExample trompaClient={trompaClient}/>
-                            </Route>
-                            <Route path="/kitchensink">
-                                <KitchenSink/>
-                            </Route>
-                            <Route path="/editors/vocabulary">
-                                <DefinedTermSetEditorWithUser trompaClient={trompaClient}/>
-                            </Route>
-                            <Route path="/editors/rating">
-                                <RatingEditorWithUser trompaClient={trompaClient}/>
-                            </Route>
-                            <Route path="/editors/toolkit">
-                                <ToolkitEditorWithUser trompaClient={trompaClient}/>
-                            </Route>
-                            <Route path="/editors/motivation">
-                                <MotivationEditorWithUser trompaClient={trompaClient}/>
-                            </Route>
-                        </Switch>
+                        <Routes>
+                            <Route path="/" element={<SessionExample trompaClient={trompaClient} />} />
+                            <Route path="/kitchensink" element={<KitchenSink/>}/>
+                            <Route path="/editors/vocabulary" element={<DefinedTermSetEditorWithUser trompaClient={trompaClient}/>} />
+                            <Route path="/editors/rating" element={<RatingEditorWithUser trompaClient={trompaClient}/>}/>
+                            <Route path="/editors/toolkit/*" element={<ToolkitEditorWithUser trompaClient={trompaClient}/>}/>
+                            <Route path="/editors/motivation" element={<MotivationEditorWithUser trompaClient={trompaClient}/>}/>
+                        </Routes>
                     </Container>
                 </SessionProvider>
             </ApolloProvider>
